@@ -1,0 +1,9 @@
+.idea/*
+.DS_Store
+*.csv
+*.a
+kitty_mon.exe
+kitty_mon
+test/*
+stash/*
+_vendor/pkg/*
