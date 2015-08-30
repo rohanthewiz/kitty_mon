@@ -1,13 +1,10 @@
 package main
 import(
 	"log"
-	//"strconv"
 	"net"
-	//"sort"
 	"encoding/gob"
 	"time"
 	"strconv"
-	"math/rand"
 )
 
 // A Node represents a single network entity.
@@ -106,17 +103,13 @@ func synch_client(host string, server_secret string) {
 
 func retrieveUnsentReadings() []Reading {
 	var readings []Reading
-	//db.Where("sent = ?", 0).Find(&readings)
-
-	// Sent some bogus readings for development
-	var reading Reading
-	for i := 0; i < 3; i++ {
-		reading = Reading {
-			Guid: random_sha1(),
-			SourceGuid: whoAmI(),
-			Temp: rand.Intn(100),
+	if opts_str["env"] == "prod" {
+		db.Where("sent = ?", 0).Find(&readings)
+	} else {
+		// Sent some bogus readings for development
+		for i := 0; i < 3; i++ {
+			readings = append(readings, bogusReading())
 		}
-		readings = append(readings, reading)
 	}
 	return readings
 }

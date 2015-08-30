@@ -31,6 +31,7 @@ func getOpts() (map[string]string, map[string]interface{}) {
 	getNodeTokenPtr := flag.String("get_node_token", "", "Get a token for interacting with this as server")
 	saveNodeTokenPtr := flag.String("save_node_token", "", "Save a token for interacting with this as server")
 	serverSecretPtr := flag.String("server_secret", "", "Include Server Secret")
+	envPtr := flag.String("env", "dev", "App Environment (dev|prod)")
 
 	qiPtr := flag.Int64("qi", 0, "Query for notes based on ID")
 	lPtr := flag.Int("l", -1, "Limit the number of notes returned")
@@ -46,6 +47,7 @@ func getOpts() (map[string]string, map[string]interface{}) {
 	synchServerPtr := flag.Bool("synch_server", false, "Synch server mode")
 	verbosePtr := flag.Bool("verbose", true, "verbose mode") // Todo - turn off for production
 	debugPtr := flag.Bool("debug", true, "debug mode") // Todo - turn off for production
+	bogusPtr := flag.Bool("bogus", false, "generate bogus data in production") // Todo - turn off for production
 
 	flag.Parse()
 
@@ -68,6 +70,8 @@ func getOpts() (map[string]string, map[string]interface{}) {
 	opts_str["get_node_token"] = *getNodeTokenPtr
 	opts_str["save_node_token"] = *saveNodeTokenPtr
 	opts_str["server_secret"] = *serverSecretPtr
+	opts_str["env"] = *envPtr
+
 	opts_intf["qi"] = *qiPtr
 	opts_intf["l"] = *lPtr
 	opts_intf["s"] = *sPtr
@@ -82,6 +86,7 @@ func getOpts() (map[string]string, map[string]interface{}) {
 	opts_intf["setup_db"] = *setupDBPtr
 	opts_intf["verbose"] = *verbosePtr
 	opts_intf["debug"] = *debugPtr
+	opts_intf["bogus"] = *bogusPtr
 
 	separator := "/"
 	if strings.Contains(strings.ToUpper(os.Getenv("OS")), "WINDOWS") {

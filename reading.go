@@ -2,6 +2,7 @@ package main
 import (
 	"time"
 	"sort"
+	"math/rand"
 )
 
 // This represents the payload sent to the server
@@ -60,4 +61,12 @@ func (r Reading) save() bool {
 
 func (r *Reading) Print() {
 	pf("%+v\n", r)
+}
+
+func bogusReading() Reading {
+	return Reading{
+		Guid: random_sha1(),
+		SourceGuid: whoAmI(),
+		Temp: rand.Intn(100),
+	}
 }

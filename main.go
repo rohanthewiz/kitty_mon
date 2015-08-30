@@ -6,10 +6,11 @@ import (
 	//"strings"
 	"github.com/jinzhu/gorm"
 	_ "github.com/mattn/go-sqlite3"
+	"time"
 )
 
 const app_name = "Kitty Monitor"
-const version string = "0.1.2"
+const version string = "0.1.3"
 
 // Get Commandline Options and Flags
 var opts_str, opts_intf = getOpts()
@@ -27,10 +28,9 @@ func migrate() {
 	// If the table is not existing, AutoMigrate will create the table automatically.
 
 	db.Model(&Reading{}).AddUniqueIndex("idx_reading_guid", "guid")
-	db.Model(&Reading{}).AddUniqueIndex("idx_reading_source_guid", "source_guid")
+	db.Model(&Reading{}).AddIndex("idx_reading_source_guid", "source_guid")
 	pl("Migration complete")
-
-	//ensureDBSig() // Initialize local with a SHA1 signature if it doesn't already have one
+	ensureDBSig() // Initialize local with a SHA1 signature if it doesn't already have one
 }
 
 func ensureDBSig() {
@@ -107,22 +107,38 @@ func main() {
 		fpl(get_server_secret())
 		return
 	}
+	if opts_intf["setup_db"].(bool) { // Migrate the DB
+		migrate()
+		return
+	}
 
 	// CORE PROCESSING
 
-//	if opts_intf["svr"].(bool) {
-//		webserver(opts_str["port"])
-//
-//	} else
 	if opts_str["synch_client"] != "" {
-			synch_client(opts_str["synch_client"], opts_str["server_secret"])
+		if opts_str["env"] == "prod" {
+			go poll_temp()
+		}
+		lpl("I will periodically send data to server...")
+		for {
+			var wait time.Duration
+			if opts_intf["bogus"].(bool) {
+				wait = 8 * time.Second
+			} else {
+				wait = 2 * time.Minute
+			}
+			time.Sleep(wait)
 
-	} else if opts_intf["synch_server"].(bool) {
+			synch_client(opts_str["synch_client"], opts_str["server_secret"])
+		}
+
+	} else {  // opts_intf["synch_server"].(bool)
+		//TODO go webserver(opts_str["port"])
 		synch_server()
 
-	} else if opts_intf["setup_db"].(bool) { // Migrate the DB
-			migrate()
 	}
+
+
+// CODE SCRAP
 
 //	} else if opts_str["q"] != "" || opts_intf["qi"].(int64) != 0 ||
 //				opts_str["qg"] != "" || opts_str["qt"] != "" ||
@@ -162,7 +178,6 @@ func main() {
 //			if arr[arr_item_last] == "gob" {
 //				importGob(opts_str["imp"])
 //			}
-
 		// Create
 //	} else if opts_str["t"] != "" { // No query options, we must be trying to CREATE
 //		createReading(opts_str["t"], opts_str["d"], opts_str["b"], opts_str["g"])
