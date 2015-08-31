@@ -91,6 +91,7 @@ func handleConnection(conn net.Conn) {
 			if node.Token == msg.Param {
 				authorized = true
 				msg.Param = "Authorized"
+				fpf("Message on auth: %v", msg)
 				if msg.Param2 != "" { // While we are here, client wants to set/update it's name
 					node.Name = msg.Param2
 					db.Save(&node)
@@ -105,7 +106,7 @@ func handleConnection(conn net.Conn) {
 			if !authorized { pl(authFailMsg); return }
 			numReadings, err := strconv.Atoi(msg.Param)
 			if err != nil {
-				pl("Could not decode the number of change messages"); return
+				pl("Could not decode the number of readings"); return
 			}
 			if numReadings < 1 { pl("No remote changes."); return }
 

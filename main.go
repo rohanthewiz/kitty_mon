@@ -29,6 +29,10 @@ func migrate() {
 
 	db.Model(&Reading{}).AddUniqueIndex("idx_reading_guid", "guid")
 	db.Model(&Reading{}).AddIndex("idx_reading_source_guid", "source_guid")
+
+	db.Model(&Node{}).AddUniqueIndex("idx_node_guid", "guid")
+	// This would disallow blanks //db.Model(&Node{}).AddUniqueIndex("idx_node_name", "name")
+
 	pl("Migration complete")
 	ensureDBSig() // Initialize local with a SHA1 signature if it doesn't already have one
 }
