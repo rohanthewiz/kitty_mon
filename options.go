@@ -32,6 +32,7 @@ func getOpts() (map[string]string, map[string]interface{}) {
 	saveNodeTokenPtr := flag.String("save_node_token", "", "Save a token for interacting with this as server")
 	serverSecretPtr := flag.String("server_secret", "", "Include Server Secret")
 	envPtr := flag.String("env", "dev", "App Environment (dev|prod)")
+	nodeNamePtr := flag.String("node_name", "", "Upsert node name on server")
 
 	qiPtr := flag.Int64("qi", 0, "Query for notes based on ID")
 	lPtr := flag.Int("l", -1, "Limit the number of notes returned")
@@ -71,6 +72,7 @@ func getOpts() (map[string]string, map[string]interface{}) {
 	opts_str["save_node_token"] = *saveNodeTokenPtr
 	opts_str["server_secret"] = *serverSecretPtr
 	opts_str["env"] = *envPtr
+	opts_str["node_name"] = *nodeNamePtr
 
 	opts_intf["qi"] = *qiPtr
 	opts_intf["l"] = *lPtr

@@ -59,6 +59,7 @@ func synch_client(host string, server_secret string) {
 		// Auth
 		msg.Type = "AuthMe"
 		msg.Param = node.Token // This is our auth token for this node (server). It is set by one of two access granting mechanisms
+		msg.Param2 = opts_str["node_name"]
 		sendMsg(enc, msg)
 		rcxMsg(dec, &msg)
 		if msg.Param != "Authorized" {
