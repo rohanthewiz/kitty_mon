@@ -10,7 +10,7 @@ import (
 )
 
 const app_name = "Kitty Monitor"
-const version string = "0.1.3"
+const version string = "0.1.4"
 
 // Get Commandline Options and Flags
 var opts_str, opts_intf = getOpts()
