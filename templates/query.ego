@@ -1,0 +1,54 @@
+<%! func RenderQuery(w io.Writer, readings []Reading) error %>
+<%% import "strconv" %%>
+
+<html>
+<head>
+  <style>
+    body { background-color: tan }
+    ul { list-style-type:none; margin: 0; padding: 0; }
+    ul.topmost > li:first-child { border-top: 1px solid #531C1C}
+    ul.topmost > li { border-top:none; border-bottom: 1px solid #8A2E2E; padding: 0.3em 0.3em}
+    li { border-top: 1px solid #B89c72; line-height:1.2em; padding: 1.2em, 4em }
+    .h1 { font-size: 1.2em; margin-bottom: 0.1em; padding: 0.1em }
+    .title { font-weight: bold; color:darkgreen; padding-top: 0.4em }
+    .count { font-size: 0.8em; color:#401020; padding-left: 0.5em; padding-right: 0.5em }
+    .tool { font-size: 0.7em; color:#401020; padding-left: 0.5em }
+    code { -webkit-border-radius: 0.3em;
+          -moz-border-radius: 0.3em;
+          border-radius: 0.3em; }
+  </style>
+  <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
+</head>
+<body>
+<% readings_count := len(readings) %>
+<p>
+  <span class="h1">KittyMon</span> <span class="count"><%= readings_count %> found</span>  [<a class="tool" href="http://127.0.0.1:<%= opts_str["port"] %>/new">New</a> |
+  <a class="tool" href="http://127.0.0.1:<%= opts_str["port"] %>/q/all">All</a>]
+</p>
+
+<ul class="topmost">
+  <% for _, reading := range readings { %>
+      <% id_str := strconv.FormatUint(reading.Id, 10) %>
+      <li><a class="title" href="/show/<%= id_str %>"><%= reading.CreatedAt %> - <%= short_sha(reading.SourceGuid) %></a>
+      <% if readings_count == 1 { %>
+      | <a class="tool" href="/del/<%= id_str %>"
+            onclick="return confirm('Are you sure you want to delete this reading?')">
+        delete</a>
+      <% } %>
+      <% if reading.Temp != "" { %> - <%= reading.Temp %>
+      <% } %>
+      </li>
+  <% } %>
+</ul>
+
+<script type="text/javascript">
+  $( function() {
+    //el = $('.reading-body');
+    //el.find("pre code").each( function(i, block) {
+    //  hljs.highlightBlock( block );
+    //})
+  });
+</script>
+
+</body>
+</html>

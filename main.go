@@ -10,7 +10,7 @@ import (
 )
 
 const app_name = "Kitty Monitor"
-const version string = "0.1.4"
+const version string = "0.1.5"
 
 // Get Commandline Options and Flags
 var opts_str, opts_intf = getOpts()
@@ -29,6 +29,7 @@ func migrate() {
 
 	db.Model(&Reading{}).AddUniqueIndex("idx_reading_guid", "guid")
 	db.Model(&Reading{}).AddIndex("idx_reading_source_guid", "source_guid")
+	db.Model(&Reading{}).AddIndex("idx_reading_created_at", "created_at")
 
 	db.Model(&Node{}).AddUniqueIndex("idx_node_guid", "guid")
 	// This would disallow blanks //db.Model(&Node{}).AddUniqueIndex("idx_node_name", "name")

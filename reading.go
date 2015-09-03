@@ -59,6 +59,14 @@ func (r Reading) save() bool {
 	return false
 }
 
+func doDelete(reading Reading) {
+	if reading == (Reading{}) {
+		pf("Internal error: cannot delete non-existent reading")
+		return
+	}
+	db.Delete(&reading)
+}
+
 func (r *Reading) Print() {
 	pf("%+v\n", r)
 }
