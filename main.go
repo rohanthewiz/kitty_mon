@@ -136,10 +136,10 @@ func main() {
 			synch_client(opts_str["synch_client"], opts_str["server_secret"])
 		}
 
-	} else {  // opts_intf["synch_server"].(bool)
-		//TODO go webserver(opts_str["port"])
+	} else {
+		go webserver(opts_str["port"])
 		synch_server()
-
+		// opts_intf["synch_server"].(bool)
 	}
 
 

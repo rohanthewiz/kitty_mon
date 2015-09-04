@@ -28,14 +28,14 @@
 
 <ul class="topmost">
   <% for _, reading := range readings { %>
-      <% id_str := strconv.FormatUint(reading.Id, 10) %>
+      <% id_str := strconv.FormatInt(reading.Id, 10) %>
       <li><a class="title" href="/show/<%= id_str %>"><%= reading.CreatedAt %> - <%= short_sha(reading.SourceGuid) %></a>
       <% if readings_count == 1 { %>
       | <a class="tool" href="/del/<%= id_str %>"
             onclick="return confirm('Are you sure you want to delete this reading?')">
         delete</a>
       <% } %>
-      <% if reading.Temp != "" { %> - <%= reading.Temp %>
+      <% if reading.Temp != -255 { %> - <%= reading.Temp %>
       <% } %>
       </li>
   <% } %>

@@ -78,3 +78,9 @@ func bogusReading() Reading {
 		Temp: rand.Intn(100),
 	}
 }
+
+func find_reading_by_id(id int64) (Reading) {
+	var reading Reading
+	db.First(&reading, id)
+	return reading
+}

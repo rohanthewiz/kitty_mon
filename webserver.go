@@ -3,11 +3,8 @@ import (
 	"net/http"
 	"github.com/julienschmidt/httprouter"
 //	"github.com/microcosm-cc/bluemonday"
-	"log"
 	"fmt"
-	"io/ioutil"
 	"strconv"
-	"net/url"
 	"path"
 	"encoding/json"
 )
@@ -18,7 +15,7 @@ func webserver(listen_port string) {
 	router := httprouter.New()
 	doRoutes(router)
 	pf("Server listening on %s... Ctrl-C to quit", listen_port)
-	log.Fatal(http.ListenAndServe(":" + listen_port, router))
+	lf(http.ListenAndServe(":" + listen_port, router))
 }
 
 // Handlers for httprouter
@@ -34,25 +31,30 @@ func Query(w http.ResponseWriter, _ *http.Request, p httprouter.Params) {
 	if err == nil {
 		opts_intf["l"] = limit
 	}
-	notes := queryNotes()
-	RenderQuery(w, notes) //call Ego generated method
+	readings, err := getRecentReadings()
+	RenderQuery(w, readings) //call Ego generated method
 }
 func QueryIdAsJson(w http.ResponseWriter, _ *http.Request, p httprouter.Params) {
 	resetOptions()
 	id, err := strconv.ParseInt(p.ByName("id"), 10, 64)
 	if err != nil { id = 0 }
 	opts_intf["qi"] = id  // qi is the highest priority
-	j_notes, err := json.Marshal(queryNotes())
+	readings, err := getRecentReadings()
+	if err != nil {
+		lpl(err)
+		return
+	}
+	j_notes, err := json.Marshal(readings)
 	w.Header().Set("Content-Type", "application/json")
 	w.Write(j_notes)
 }
 
-func WebDeleteNote(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+func WebDelete(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 	id, err := strconv.ParseInt(p.ByName("id"), 10, 64)
 	if err != nil {
-		fpl("Error deleting note.")
+		fpl("Error parsing reading id for delete.")
 	} else {
-		doDelete(find_note_by_id(id))
+		doDelete(find_reading_by_id(id))
 	}
 	http.Redirect(w, r, "/q/all/l/100", http.StatusFound)
 }
