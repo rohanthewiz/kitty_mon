@@ -10,7 +10,7 @@ func poll_temp() {
 	var reading Reading
 	for {
 		var wait time.Duration
-		if opts_intf["bogus"].(bool) {
+		if opts_str["env"] == "dev" {
 			wait = 8 * time.Second
 		} else {
 			wait = time.Minute

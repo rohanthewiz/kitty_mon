@@ -120,14 +120,13 @@ func main() {
 	// CORE PROCESSING
 
 	if opts_str["synch_client"] != "" {
-		if opts_str["env"] == "prod" {
-			go poll_temp()
-		}
+		go poll_temp() // save temp, whether real or bogus to the db
+
 		lpl("I will periodically send data to server...")
 		for {
 			var wait time.Duration
-			if opts_intf["bogus"].(bool) {
-				wait = 8 * time.Second
+			if opts_str["env"] == "dev" {
+				wait = 12 * time.Second
 			} else {
 				wait = 2 * time.Minute
 			}
@@ -136,7 +135,7 @@ func main() {
 			synch_client(opts_str["synch_client"], opts_str["server_secret"])
 		}
 
-	} else {
+	} else {  // Become server
 		go webserver(opts_str["port"])
 		synch_server()
 		// opts_intf["synch_server"].(bool)

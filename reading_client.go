@@ -109,7 +109,7 @@ func synch_client(host string, server_secret string) {
 
 func retrieveUnsentReadings() []Reading {
 	var readings []Reading
-	if opts_str["env"] == "prod" {
+	if opts_intf["bogus"] == false {
 		db.Where("sent = ?", 0).Find(&readings)
 	} else {
 		// Sent some bogus readings for development
