@@ -2,6 +2,7 @@ package main
 import (
 	"time"
 	"strconv"
+	"strings"
 	"os/exec"
 	"log"
 )
@@ -33,15 +34,19 @@ func poll_temp() {
 }
 
 func cat_temp() int {
-	str_temp, err := exec.Command(`cat /sys/class/thermal/thermal_zone0/temp`).Output()
+	cmdArgs := []string{"/sys/class/thermal/thermal_zone0/temp"}
+	byte_temp, err := exec.Command("cat", cmdArgs...).Output()
 	if err != nil {
 		log.Println("Error acquiring temperature.")
 		return -255
 	}
+        str_temp := strings.Trim(string(byte_temp), " \n\t") // clean up whitespace
+	lpl("\"",str_temp,"\"")
 	var temp int
-	temp, err = strconv.Atoi(string(str_temp))
+	temp, err = strconv.Atoi(str_temp)
+        lpl("The converted temperature is:", temp)
 	if err != nil {
-		log.Println("Error acquiring temperature.")
+		log.Println("Error converting temperature.")
 		return -255
 	}
 	return temp
