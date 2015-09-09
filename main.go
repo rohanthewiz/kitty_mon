@@ -66,6 +66,7 @@ func main() {
 	if opts_intf["v"].(bool) {
 		fpl(app_name, version)
 		fpl(cat_temp())
+		fpl("Local IPs:", IPs())
 		return
 	}
 

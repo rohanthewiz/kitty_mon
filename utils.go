@@ -6,6 +6,7 @@ import(
 	"crypto/sha1"
 	"strings"
 	"log"
+	"net"
 )
 
 // --- Some Shortcuts for often used output functions ---
@@ -51,7 +52,23 @@ func short_sha(sha string) string{
 	return sha
 }
 
-
 func trim_whitespace(in_str string) string {
 	return strings.Trim(in_str, " \n\r\t")
+}
+
+// Return all IPs on Geoforce subnets
+func IPs() string {
+	var ret_addr []string
+	addrs, err := net.InterfaceAddrs()
+	if err != nil {
+		return ""
+	}
+	for _, addr := range addrs {
+		addr_str := addr.String()
+		if strings.Contains(addr_str, "192.168") {
+			ret := strings.Split(addr_str, "/")[0]
+			ret_addr = append(ret_addr, ret)
+		}
+	}
+	return strings.Join(ret_addr, ", ")
 }

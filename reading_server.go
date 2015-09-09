@@ -15,7 +15,8 @@ func synch_server() {
 		fpl("Error setting up server listen on port", SYNCH_PORT)
 		return
 	}
-	fmt.Println("Server listening on port: " + SYNCH_PORT + " - CTRL-C to quit")
+	fpl("GOB Server listening on port: " + SYNCH_PORT + " - CTRL-C to quit",
+		"\nLocal IPs:", IPs())
 
 	for {
 		conn, err := ln.Accept() // this blocks until connection or error
