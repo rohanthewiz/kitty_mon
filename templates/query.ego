@@ -37,6 +37,8 @@
       <% } %>
       <% if reading.Temp != -255 { %> - <%= reading.Temp %>
       <% } %>
+      <% if reading.IPs != "" { %> - <%= reading.IPs %>
+      <% } %>
       </li>
   <% } %>
 </ul>

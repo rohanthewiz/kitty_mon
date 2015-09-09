@@ -24,6 +24,7 @@ func poll_temp() {
 			reading = Reading{
 				Guid: random_sha1(),
 				SourceGuid: whoAmI(),
+				IPs: IPs(),
 				Temp: cat_temp(),
 				Sent: 0,
 			}

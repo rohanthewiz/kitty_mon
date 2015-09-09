@@ -11,6 +11,7 @@ type Reading struct {
 	Id int64
 	Guid string `sql: "size:40"` // random id for each message
 	SourceGuid string `sql: "size:40"` // We will tag this with the client's db sig when reading sent
+	IPs string `sql: "size:254"`
 	Sent int  // has the reading been sent // bool 0 - false, 1 - true
 	Temp int  // temperature
 	CreatedAt time.Time
