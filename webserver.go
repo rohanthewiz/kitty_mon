@@ -14,7 +14,7 @@ import (
 func webserver(listen_port string) {
 	router := httprouter.New()
 	doRoutes(router)
-	pf("Server listening on %s... Ctrl-C to quit", listen_port)
+	pf("Webserver listening on %s... Ctrl-C to quit\n", listen_port)
 	lf(http.ListenAndServe(":" + listen_port, router))
 }
 
@@ -34,6 +34,19 @@ func Query(w http.ResponseWriter, _ *http.Request, p httprouter.Params) {
 	readings, err := getRecentReadings()
 	RenderQuery(w, readings) //call Ego generated method
 }
+
+func QueryAsJson(w http.ResponseWriter, _ *http.Request, p httprouter.Params) {
+	resetOptions()
+	readings, err := getRecentReadings()
+	if err != nil {
+		lpl(err)
+		return
+	}
+	j_readings, _ := json.Marshal(readings)
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(j_readings)
+}
+
 func QueryIdAsJson(w http.ResponseWriter, _ *http.Request, p httprouter.Params) {
 	resetOptions()
 	id, err := strconv.ParseInt(p.ByName("id"), 10, 64)
@@ -44,9 +57,9 @@ func QueryIdAsJson(w http.ResponseWriter, _ *http.Request, p httprouter.Params) 
 		lpl(err)
 		return
 	}
-	j_notes, err := json.Marshal(readings)
+	j_readings, _ := json.Marshal(readings)
 	w.Header().Set("Content-Type", "application/json")
-	w.Write(j_notes)
+	w.Write(j_readings)
 }
 
 func WebDelete(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
