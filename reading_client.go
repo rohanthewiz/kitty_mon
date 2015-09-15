@@ -1,6 +1,5 @@
 package main
 import(
-	"log"
 	"net"
 	"encoding/gob"
 	"time"
@@ -27,8 +26,16 @@ const SYNCH_PORT  string = "8090"
 
 func synch_client(host string, server_secret string) {
 	conn, err := net.Dial("tcp", host + ":" + SYNCH_PORT)
-	if err != nil {log.Fatal("Error connecting to server ", err)}
-	defer conn.Close()
+	if err != nil {
+		lpl("Error connecting to server ", err)
+		return
+	}
+	defer func() {
+		conn.Close()
+		if r := recover(); r != nil {
+			lpl("Recovered in synch_client", r)
+		}
+	}()
 	msg := Message{} // init to empty struct
 	enc := gob.NewEncoder(conn)
 	dec := gob.NewDecoder(conn)
@@ -104,7 +111,7 @@ func synch_client(host string, server_secret string) {
 			return
     }
 
-	defer fpl("Synch Operation complete")
+	lpl("Synch Operation complete")
 }
 
 func retrieveUnsentReadings() []Reading {
