@@ -3,14 +3,13 @@ package main
 import (
 	"fmt"
 	"os"
-	//"strings"
 	"github.com/jinzhu/gorm"
 	_ "github.com/mattn/go-sqlite3"
 	"time"
 )
 
 const app_name = "Kitty Monitor"
-const version string = "0.1.5"
+const version string = "0.1.6"
 
 // Get Commandline Options and Flags
 var opts_str, opts_intf = getOpts()
@@ -55,8 +54,7 @@ func main() {
 	var err error
 	db, err = gorm.Open("sqlite3", opts_str["db_path"])
 	if err != nil {
-		fpl("There was an error connecting to the DB")
-		fpl("DBPath: " + opts_str["db_path"])
+		lf("There was an error connecting to the DB.\nDBPath: " + opts_str["db_path"])
 		os.Exit(2)
 	}
 

@@ -22,10 +22,10 @@ type Node struct {
 	UpdatedAt	time.Time
 }
 
-const SYNCH_PORT  string = "8090"
+//const SYNCH_PORT  string = "8090"
 
 func synch_client(host string, server_secret string) {
-	conn, err := net.Dial("tcp", host + ":" + SYNCH_PORT)
+	conn, err := net.Dial("tcp", host + ":" + opts_str["synch_port"])
 	if err != nil {
 		lpl("Error connecting to server ", err)
 		return

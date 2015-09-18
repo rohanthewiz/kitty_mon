@@ -10,12 +10,12 @@ import(
 )
 
 func synch_server() {
-	ln, err := net.Listen("tcp", ":" + SYNCH_PORT) // counterpart of net.Dial
+	ln, err := net.Listen("tcp", ":" + opts_str["synch_port"]) // counterpart of net.Dial
 	if err != nil {
-		fpl("Error setting up server listen on port", SYNCH_PORT)
+		fpl("Error setting up server listen on port", opts_str["synch_port"])
 		return
 	}
-	fpl("GOB Server listening on port: " + SYNCH_PORT + " - CTRL-C to quit",
+	fpl("GOB Server listening on port: " + opts_str["synch_port"] + " - CTRL-C to quit",
 		"\nLocal IPs:", IPs())
 
 	for {
