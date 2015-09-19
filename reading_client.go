@@ -80,11 +80,8 @@ func synch_client(host string, server_secret string) {
 		}
 
 		// The Client will send one or more messages to the server
-
-    // Get Local Changes
 		readings := retrieveUnsentReadings()
 		pf("%d unsent readings found\n", len(readings))
-		// Push local changes to server
 		if len(readings) > 0 {
 			sendMsg(enc, Message{Type: "NumberOfReadings",
 				Param: strconv.Itoa(len(readings))})
@@ -97,9 +94,9 @@ func synch_client(host string, server_secret string) {
 						reading.SourceGuid = whoAmI()
 					msg.Reading = reading
 					sendMsg(enc, msg)
-					// Mark as sent
-					reading.Sent = 1
-					db.Save(&reading)
+					// Let's go ahead and delete here
+					//reading.Sent = 1
+					db.Delete(&reading) //db.Save(&reading)
 				}
 			}
 		}

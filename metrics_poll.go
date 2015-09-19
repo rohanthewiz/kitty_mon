@@ -13,7 +13,7 @@ func poll_temp() {
 		if opts_str["env"] == "dev" {
 			wait = 8 * time.Second
 		} else {
-			wait = time.Minute
+			wait = 2 * time.Minute
 		}
 		time.Sleep(wait)
 

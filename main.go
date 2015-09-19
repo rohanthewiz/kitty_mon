@@ -9,7 +9,7 @@ import (
 )
 
 const app_name = "Kitty Monitor"
-const version string = "0.1.6"
+const version string = "0.1.7"
 
 // Get Commandline Options and Flags
 var opts_str, opts_intf = getOpts()
@@ -128,7 +128,7 @@ func main() {
 			if opts_str["env"] == "dev" {
 				wait = 12 * time.Second
 			} else {
-				wait = 2 * time.Minute
+				wait = 4 * time.Minute
 			}
 			time.Sleep(wait)
 
