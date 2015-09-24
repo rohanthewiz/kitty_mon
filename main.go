@@ -9,7 +9,7 @@ import (
 )
 
 const app_name = "Kitty Monitor"
-const version string = "0.1.7"
+const version string = "0.1.8"
 
 // Get Commandline Options and Flags
 var opts_str, opts_intf = getOpts()
@@ -138,51 +138,5 @@ func main() {
 	} else {  // Become server
 		go webserver(opts_str["port"])
 		synch_server()
-		// opts_intf["synch_server"].(bool)
 	}
-
-
-// CODE SCRAP
-
-//	} else if opts_str["q"] != "" || opts_intf["qi"].(int64) != 0 ||
-//				opts_str["qg"] != "" || opts_str["qt"] != "" ||
-//				opts_str["qb"] != "" || opts_str["qd"] != "" {
-//		// QUERY
-//		readings := queryReadings()
-//
-//		// List Readings found
-//		fpl("")  // for UI sake
-//		listReadings(readings, true)
-//
-//		// Options that can go with Query
-//		// export
-//		if opts_str["exp"] != "" {
-//			arr := strings.Split(opts_str["exp"], ".")
-//			arr_item_last := len(arr) -1
-//			if arr[arr_item_last] == "csv" {
-//				exportCsv(readings, opts_str["exp"])
-//			}
-//			if arr[arr_item_last] == "gob" {
-//				exportGob(readings, opts_str["exp"])
-//			}
-//		} else if opts_intf["upd"].(bool) { // update
-//			updateReadings(readings)
-//
-//			// See if we want to delete
-//		} else if opts_intf["del"].(bool) {
-//			deleteReadings(readings)
-//		}
-//		// Other options
-//	} else if opts_str["imp"] != "" { // import
-//			arr := strings.Split(opts_str["imp"], ".")
-//			arr_item_last := len(arr) -1
-//			if arr[arr_item_last] == "csv" {
-//				importCsv(opts_str["imp"])
-//			}
-//			if arr[arr_item_last] == "gob" {
-//				importGob(opts_str["imp"])
-//			}
-		// Create
-//	} else if opts_str["t"] != "" { // No query options, we must be trying to CREATE
-//		createReading(opts_str["t"], opts_str["d"], opts_str["b"], opts_str["g"])
 }
