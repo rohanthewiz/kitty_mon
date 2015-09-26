@@ -26,12 +26,23 @@ func Index(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 
 func Query(w http.ResponseWriter, _ *http.Request, p httprouter.Params) {
 	resetOptions()
-	opts_str["q"] = p.ByName("query")  // Overwrite the query param
+	opts.Q = p.ByName("query")  // Overwrite the query param
 	limit, err := strconv.Atoi(p.ByName("limit"))
 	if err == nil {
-		opts_intf["l"] = limit
+		opts.L = limit
 	}
 	readings, err := getRecentReadings()
+	RenderQuery(w, readings) //call Ego generated method
+}
+
+func QueryAll(w http.ResponseWriter, _ *http.Request, p httprouter.Params) {
+	resetOptions()
+	opts.Q = p.ByName("query")  // Overwrite the query param
+	limit, err := strconv.Atoi(p.ByName("limit"))
+	if err == nil {
+		opts.L = limit
+	}
+	readings, err := getAllReadings()
 	RenderQuery(w, readings) //call Ego generated method
 }
 
@@ -47,20 +58,20 @@ func QueryAsJson(w http.ResponseWriter, _ *http.Request, p httprouter.Params) {
 	w.Write(j_readings)
 }
 
-func QueryIdAsJson(w http.ResponseWriter, _ *http.Request, p httprouter.Params) {
-	resetOptions()
-	id, err := strconv.ParseInt(p.ByName("id"), 10, 64)
-	if err != nil { id = 0 }
-	opts_intf["qi"] = id  // qi is the highest priority
-	readings, err := getRecentReadings()
-	if err != nil {
-		lpl(err)
-		return
-	}
-	j_readings, _ := json.Marshal(readings)
-	w.Header().Set("Content-Type", "application/json")
-	w.Write(j_readings)
-}
+//func QueryIdAsJson(w http.ResponseWriter, _ *http.Request, p httprouter.Params) {
+//	resetOptions()
+//	id, err := strconv.ParseInt(p.ByName("id"), 10, 64)
+//	if err != nil { id = 0 }
+//	opts_intf["qi"] = id  // qi is the highest priority
+//	readings, err := getRecentReadings()
+//	if err != nil {
+//		lpl(err)
+//		return
+//	}
+//	j_readings, _ := json.Marshal(readings)
+//	w.Header().Set("Content-Type", "application/json")
+//	w.Write(j_readings)
+//}
 
 func WebDelete(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 	id, err := strconv.ParseInt(p.ByName("id"), 10, 64)
@@ -77,14 +88,9 @@ func ServeJS(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 }
 
 func resetOptions() {
-	opts_intf["qi"] = nil // turn off unused option
-	opts_intf["ql"] = false // turn off unused option
-	opts_intf["l"] = -1 // turn off unused option
-	opts_str["qg"] = "" // turn off higher priority option
-	opts_str["qt"] = "" // turn off unused option
-	opts_str["qd"] = "" // turn off unused option
-	opts_str["qb"] = "" // turn off unused option
-	opts_str["q"] = "" // turn off higher priority option
+	opts.Ql = false // turn off unused option
+	opts.L = -1 // turn off unused option
+	opts.Q = "" // turn off higher priority option
 }
 
 func HandleRequestErr(err error, w http.ResponseWriter) {

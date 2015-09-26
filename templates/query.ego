@@ -10,6 +10,14 @@
     ul.topmost > li { border-top:none; border-bottom: 1px solid #8A2E2E; padding: 0.3em 0.3em}
     li { border-top: 1px solid #B89c72; line-height:1.2em; padding: 1.2em, 4em }
     .h1 { font-size: 1.2em; margin-bottom: 0.1em; padding: 0.1em }
+    .temp { font-weight: bold; }
+    .temp_fail { color:red; }
+    .temp_hot { color:#a07030; }
+    .temp_warm { color:yellow; }
+    .temp_good { color:darkgreen; }
+    .fixed-heading { position: fixed; top: 0; left: 0; width:100%; z-index:2; background-color:tan; opacity:0.95 }
+    .temp_heading td { border: 1px solid gray }
+    .temp_data { margin-top: 2.8em; }
     .title { font-weight: bold; color:darkgreen; padding-top: 0.4em }
     .count { font-size: 0.8em; color:#401020; padding-left: 0.5em; padding-right: 0.5em }
     .tool { font-size: 0.7em; color:#401020; padding-left: 0.5em }
@@ -21,27 +29,55 @@
 </head>
 <body>
 <% readings_count := len(readings) %>
-<p>
-  <span class="h1">KittyMon</span> <span class="count"><%= readings_count %> found</span>  [<a class="tool" href="http://127.0.0.1:<%= opts_str["port"] %>/new">New</a> |
-  <a class="tool" href="http://127.0.0.1:<%= opts_str["port"] %>/q/all">All</a>]
-</p>
-
-<ul class="topmost">
-  <% for _, reading := range readings { %>
-      <% id_str := strconv.FormatInt(reading.Id, 10) %>
-      <li><a class="title" href="/show/<%= id_str %>"><%= reading.CreatedAt %> - <%= short_sha(reading.SourceGuid) %></a>
+<div class="fixed-heading">
+  <span class="h1">KittyMon</span> <span class="count"><%= readings_count %> found</span>  <a class="tool" href="/q/all">All</a>
+  <table class="temp_heading">
+  <tr><td>Temp</td><td>Created At</td><td>Reading Guid</td><td>Soure Guid</td><td>Source IP</td>
       <% if readings_count == 1 { %>
-      | <a class="tool" href="/del/<%= id_str %>"
+        <td>Delete</td>
+      <% } %>
+  </tr>
+  </table>
+</div>
+
+<table class="temp_data">
+  <% var temp_class string %>
+  <% for _, reading := range readings { %>
+      <%
+        switch {
+        case reading.Temp > 64:
+          temp_class = "temp_fail"
+        case reading.Temp > 62:
+          temp_class = "temp_hot"
+        case reading.Temp > 59:
+          temp_class = "temp_warm"
+        default:
+          temp_class = "temp_good"
+        }
+      %>
+      <tr>
+
+      <% if reading.Temp == -255 { %>
+       <td>N/A</td>
+      <% } else { %>
+       <td class="temp <%=temp_class %>"><%= reading.Temp %></td>
+      <% } %>
+
+      <td><%= reading.CreatedAt.Format("15:04:05 Mon Jan _2") %></td>
+      <td><%= short_sha(reading.Guid) %></td>
+      <td><%= short_sha(reading.SourceGuid) %></td>
+      <td><%= reading.IPs %></td>
+      <% if readings_count == 1 { %>
+      <% id_str := strconv.FormatInt(reading.Id, 10) %>
+      <td><a class="tool" href="/del/<%= id_str %>"
             onclick="return confirm('Are you sure you want to delete this reading?')">
         delete</a>
+      </td>
       <% } %>
-      <% if reading.Temp != -255 { %> - <%= reading.Temp %>
-      <% } %>
-      <% if reading.IPs != "" { %> - <%= reading.IPs %>
-      <% } %>
-      </li>
+
+      </tr>
   <% } %>
-</ul>
+</table>
 
 <script type="text/javascript">
   $( function() {

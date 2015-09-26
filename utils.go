@@ -17,19 +17,19 @@ var lpl = log.Println
 var lf = log.Fatal
 
 func pd(params ...interface{}) {
-	if opts_intf["debug"].(bool) {
+	if opts.Debug {
 		log.Println(params...)
 	}
 }
 
 func pl(params ...interface{}) {
-	if opts_intf["verbose"].(bool) {
+	if opts.Verbose {
 		fmt.Println(params...)
 	}
 }
 
 func pf(msg string, params ...interface{}) {
-	if opts_intf["verbose"].(bool) {
+	if opts.Verbose {
 		fmt.Printf(msg, params...)
 	}
 }
@@ -57,7 +57,7 @@ func trim_whitespace(in_str string) string {
 }
 
 // Return all IPs on Geoforce subnets
-func IPs() string {
+func IPs(class_c_only bool) string {
 	var ret_addr []string
 	addrs, err := net.InterfaceAddrs()
 	if err != nil {
@@ -65,7 +65,8 @@ func IPs() string {
 	}
 	for _, addr := range addrs {
 		addr_str := addr.String()
-		if strings.Contains(addr_str, "192.168") {
+		if class_c_only && !strings.Contains(addr_str, "192.") {continue}
+		if strings.Contains(addr_str, ".") {
 			ret := strings.Split(addr_str, "/")[0]
 			ret_addr = append(ret_addr, ret)
 		}

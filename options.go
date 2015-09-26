@@ -6,21 +6,41 @@ import (
 	"strings"
 )
 
-const CentralServer = true // share codebase with central server
+type Opts struct {
+	Q string
+	Port string
+	SynchPort string
+	Admin string
+	Db string
+	DbPath string
+	Exp string
+	Imp string
+	SynchClient string
+	GetNodeToken string
+	SaveNodeToken string
+	ServerSecret string
+	Env string
+	NodeName string
+	L int
+	Ql bool
+	V bool
+	WhoAmI bool
+	Del bool
+	Svr bool
+	GetServerSecret bool
+	SynchServer bool
+	SetupDb bool
+	Sep string
+	Verbose bool
+	Debug bool
+	Bogus bool
+}
 
 //Setup commandline options and other configuration for Go Notes
-func getOpts() (map[string]string, map[string]interface{}) {
-	opts_str := make(map[string]string)
-	opts_intf := make(map[string]interface{})
+func NewOpts() *Opts {
+	opts := new(Opts)
 
-	qgPtr := flag.String("qg", "", "Query tags based on a LIKE search")
-	qtPtr := flag.String("qt", "", "Query title based on a LIKE search")
-	qdPtr := flag.String("qd", "", "Query description based on a LIKE search")
-	qbPtr := flag.String("qb", "", "Query body based on a LIKE search")
-	tPtr := flag.String("t", "", "Create note Title")
-	dPtr := flag.String("d", "", "Create note Description")
-	bPtr := flag.String("b", "", "Create note Body")
-	gPtr := flag.String("g", "", "Comma separated list of Tags for new note")
+	// flag.{String|Bool|Int|Float...}( the_option, default_value, description )
 	qPtr := flag.String("q", "", "Query for notes based on a LIKE search. \"all\" will return all notes")
 	pPtr := flag.String("port", "9080", "Specify webserver port")
 	synchPortPtr := flag.String("synch_port", "1470", "Specify webserver port")
@@ -35,15 +55,12 @@ func getOpts() (map[string]string, map[string]interface{}) {
 	envPtr := flag.String("env", "dev", "App Environment (dev|prod)")
 	nodeNamePtr := flag.String("node_name", "", "Upsert node name on server")
 
-	qiPtr := flag.Int64("qi", 0, "Query for notes based on ID")
 	lPtr := flag.Int("l", -1, "Limit the number of notes returned")
-	sPtr := flag.Bool("s", false, "Short Listing - don't show the body")
 	qlPtr := flag.Bool("ql", false, "Query for the last note updated")
 	vPtr := flag.Bool("v", false, "Show version")
 	whoamiPtr := flag.Bool("whoami", false, "Show Client GUID")
 	setupDBPtr := flag.Bool("setup_db", false, "Setup the Database")
 	delPtr := flag.Bool("del", false, "Delete the notes queried")
-	updPtr := flag.Bool("upd", false, "Update the notes queried")
 	svrPtr := flag.Bool("svr", false, "Web server mode")
 	getServerSecretPtr := flag.Bool("get_server_secret", false, "Show Server Secret")
 	synchServerPtr := flag.Bool("synch_server", false, "Synch server mode")
@@ -54,49 +71,37 @@ func getOpts() (map[string]string, map[string]interface{}) {
 	flag.Parse()
 
 	// Store options in a couple of maps
-	opts_str["q"] = *qPtr
-	opts_str["port"] = *pPtr
-	opts_str["synch_port"] = *synchPortPtr
-	opts_str["qg"] = *qgPtr
-	opts_str["qt"] = *qtPtr
-	opts_str["qd"] = *qdPtr
-	opts_str["qb"] = *qbPtr
-	opts_str["t"] = *tPtr
-	opts_str["d"] = *dPtr
-	opts_str["b"] = *bPtr
-	opts_str["g"] = *gPtr
-	opts_str["admin"] = *adminPtr
-	opts_str["db"] = *dbPtr
-	opts_str["exp"] = *expPtr
-	opts_str["imp"] = *impPtr
-	opts_str["synch_client"] = *synchClientPtr
-	opts_str["get_node_token"] = *getNodeTokenPtr
-	opts_str["save_node_token"] = *saveNodeTokenPtr
-	opts_str["server_secret"] = *serverSecretPtr
-	opts_str["env"] = *envPtr
-	opts_str["node_name"] = *nodeNamePtr
-
-	opts_intf["qi"] = *qiPtr
-	opts_intf["l"] = *lPtr
-	opts_intf["s"] = *sPtr
-	opts_intf["ql"] = *qlPtr
-	opts_intf["v"] = *vPtr
-	opts_intf["whoami"] = *whoamiPtr
-	opts_intf["del"] = *delPtr
-	opts_intf["upd"] = *updPtr
-	opts_intf["svr"] = *svrPtr
-	opts_intf["synch_server"] = *synchServerPtr
-	opts_intf["get_server_secret"] = *getServerSecretPtr
-	opts_intf["setup_db"] = *setupDBPtr
-	opts_intf["verbose"] = *verbosePtr
-	opts_intf["debug"] = *debugPtr
-	opts_intf["bogus"] = *bogusPtr
+	opts.Q = *qPtr
+	opts.Port = *pPtr
+	opts.SynchPort = *synchPortPtr
+	opts.Admin = *adminPtr
+	opts.Db = *dbPtr
+	opts.Exp = *expPtr
+	opts.Imp = *impPtr
+	opts.SynchClient = *synchClientPtr
+	opts.GetNodeToken = *getNodeTokenPtr
+	opts.SaveNodeToken = *saveNodeTokenPtr
+	opts.ServerSecret = *serverSecretPtr
+	opts.Env = *envPtr
+	opts.NodeName = *nodeNamePtr
+	opts.L = *lPtr
+	opts.Ql = *qlPtr
+	opts.V = *vPtr
+	opts.WhoAmI = *whoamiPtr
+	opts.Del = *delPtr
+	opts.Svr = *svrPtr
+	opts.SynchServer = *synchServerPtr
+	opts.GetServerSecret = *getServerSecretPtr
+	opts.SetupDb = *setupDBPtr
+	opts.Verbose = *verbosePtr
+	opts.Debug = *debugPtr
+	opts.Bogus = *bogusPtr
 
 	separator := "/"
 	if strings.Contains(strings.ToUpper(os.Getenv("OS")), "WINDOWS") {
 		separator = "\\"
 	}
-	opts_str["sep"] = separator
+	opts.Sep = separator
 
 	db_file := "kitty_mon.sqlite"
 	var db_folder string
@@ -113,7 +118,7 @@ func getOpts() (map[string]string, map[string]interface{}) {
 	} else {
 		db_full_path = *dbPtr
 	}
-	opts_str["db_path"] = db_full_path
+	opts.DbPath = db_full_path
 
-	return opts_str, opts_intf
+	return opts
 }

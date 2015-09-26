@@ -22,10 +22,8 @@ type Node struct {
 	UpdatedAt	time.Time
 }
 
-//const SYNCH_PORT  string = "8090"
-
 func synch_client(host string, server_secret string) {
-	conn, err := net.Dial("tcp", host + ":" + opts_str["synch_port"])
+	conn, err := net.Dial("tcp", host + ":" + opts.SynchPort)
 	if err != nil {
 		lpl("Error connecting to server ", err)
 		return
@@ -67,10 +65,10 @@ func synch_client(host string, server_secret string) {
 		msg.Type = "AuthMe"
 		msg.Param = node.Token // This is our auth token for this node (server). It is set by one of two access granting mechanisms
 
-		if node.Name == "" && opts_str["node_name"] != "" {
-			node.Name = opts_str["node_name"] // The server will know this node as this name
+		if node.Name == "" && opts.NodeName != "" {
+			node.Name = opts.NodeName // The server will know this node as this name
 			db.Save(&node)
-			msg.Param2 = opts_str["node_name"]
+			msg.Param2 = opts.NodeName
 		}
 		sendMsg(enc, msg)
 		rcxMsg(dec, &msg)
@@ -113,7 +111,7 @@ func synch_client(host string, server_secret string) {
 
 func retrieveUnsentReadings() []Reading {
 	var readings []Reading
-	if opts_intf["bogus"] == false {
+	if opts.Bogus == false {
 		db.Where("sent = ?", 0).Find(&readings)
 	} else {
 		// Sent some bogus readings for development

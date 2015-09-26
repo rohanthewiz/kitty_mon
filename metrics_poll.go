@@ -10,7 +10,7 @@ func poll_temp() {
 	var reading Reading
 	for {
 		var wait time.Duration
-		if opts_str["env"] == "dev" {
+		if opts.Env == "dev" {
 			wait = 8 * time.Second
 		} else {
 			wait = 2 * time.Minute
@@ -18,13 +18,13 @@ func poll_temp() {
 		time.Sleep(wait)
 
 		//Temperature
-		if opts_intf["bogus"].(bool) {
+		if opts.Bogus {
 			reading = bogusReading()
 		} else {
 			reading = Reading{
 				Guid: random_sha1(),
 				SourceGuid: whoAmI(),
-				IPs: IPs(),
+				IPs: IPs(true),
 				Temp: cat_temp(),
 				Sent: 0,
 			}

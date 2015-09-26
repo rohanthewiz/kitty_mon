@@ -16,3 +16,9 @@ func getRecentReadings() ([]Reading, error) {
 	q := db.Order("created_at desc").Limit(60).Find(&readings)
 	return readings, q.Error
 }
+
+func getAllReadings() ([]Reading, error) {
+	var readings []Reading
+	q := db.Order("created_at desc").Find(&readings)
+	return readings, q.Error
+}
