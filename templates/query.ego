@@ -4,20 +4,79 @@
 <html>
 <head>
   <style>
-    body { background-color: tan }
-    ul { list-style-type:none; margin: 0; padding: 0; }
-    ul.topmost > li:first-child { border-top: 1px solid #531C1C}
-    ul.topmost > li { border-top:none; border-bottom: 1px solid #8A2E2E; padding: 0.3em 0.3em}
-    li { border-top: 1px solid #B89c72; line-height:1.2em; padding: 1.2em, 4em }
+    @import url(http://fonts.googleapis.com/css?family=Roboto+Slab:300);
+    * {margin:0;padding:0; border: 0 none;}
+    *, *:before, *:after {box-sizing: inherit;}
+    html{
+        box-sizing: border-box;
+        background: #32382b;
+        font-size: 0.9rem;
+        color: #e6eff0;
+        font-family: Roboto Slab,sans-serif;
+    }
+    table * {height: auto; min-height: none; position:relative} /* fixed ie9 & <*/
+    table {
+        background: #bec28b;
+        table-layout: fixed;
+        margin: 1rem auto;
+        width: 99vw;
+        box-shadow: 0 0 3px 1px rgba(0,0,0,.4);
+        border-collapse: collapse;
+        border: 1px solid rgba(0,0,0,.5);
+        border-top: 0 none;
+    }
+    thead {
+        background-color: #788056;
+        text-align: center;
+        z-index: 2;
+    }
+    thead tr {
+        padding-right: 17px;
+        box-shadow: 0 0px 1px rgba(0,0,0,0.1);
+        z-index: 2;
+    }
+    th {
+        border-right: 2px solid rgba(0,0,0,.2);
+        padding: .7rem 0;
+        font-size: 1.1rem;
+        font-weight: normal;
+        font-variant: small-caps;
+    }
+    tbody {
+        display: block;
+        height: calc(100vh - 10rem);
+        min-height: calc(200px + 1 px);
+        overflow-Y: scroll;
+        color: #000;
+    }
+    tr {
+        display: block;
+        overflow: hidden;
+    }
+    tbody tr:nth-child(odd) {
+        background: rgba(0,0,0,.1);
+    }
+    th, td {
+        width: 18%%;
+        float:left;
+    }
+    td {
+        padding: .5rem 0 .5rem 1rem;
+        border-right: 2px solid rgba(0,0,0,.2);
+    }
+    td:nth-child(2n) {color: #fff;}
+    th:last-child, td:last-child {
+        text-align: center;
+        border-right: 0 none;
+        width: 8rem;
+    }
     .h1 { font-size: 1.2em; margin-bottom: 0.1em; padding: 0.1em }
-    .temp { font-weight: bold; }
+    .temp {width: 4rem; font-weight: bold; }
     .temp_fail { color:red; }
     .temp_hot { color:#a07030; }
     .temp_warm { color:yellow; }
     .temp_good { color:darkgreen; }
-    .fixed-heading { position: fixed; top: 0; left: 0; width:100%; z-index:2; background-color:tan; opacity:0.95 }
-    .temp_heading td { border: 1px solid gray }
-    .temp_data { margin-top: 2.8em; }
+    .created_at { width: 25%% }
     .title { font-weight: bold; color:darkgreen; padding-top: 0.4em }
     .count { font-size: 0.8em; color:#401020; padding-left: 0.5em; padding-right: 0.5em }
     .tool { font-size: 0.7em; color:#401020; padding-left: 0.5em }
@@ -29,27 +88,31 @@
 </head>
 <body>
 <% readings_count := len(readings) %>
-<div class="fixed-heading">
+<div class="heading">
   <span class="h1">KittyMon</span> <span class="count"><%= readings_count %> found</span>  <a class="tool" href="/q/all">All</a>
-  <table class="temp_heading">
-  <tr><td>Temp</td><td>Created At</td><td>Reading Guid</td><td>Soure Guid</td><td>Source IP</td>
-      <% if readings_count == 1 { %>
-        <td>Delete</td>
-      <% } %>
-  </tr>
-  </table>
 </div>
 
-<table class="temp_data">
-  <% var temp_class string %>
+<table>
+  <thead>
+  <tr>
+  <th class="temp">Temp</th><th class="created_at">Created At</th><th>Reading Guid</th><th>Soure Guid</th><th>Source IP</th>
+      <% if readings_count == 1 { %>
+        <th>Delete</th>
+      <% } %>
+  </tr>
+  </thead>
+  <tbody>
+  <% var temp_class string
+  var temp int %>
   <% for _, reading := range readings { %>
       <%
+        temp = reading.Temp /1000
         switch {
-        case reading.Temp > 64:
+        case temp > 64:
           temp_class = "temp_fail"
-        case reading.Temp > 62:
+        case temp > 62:
           temp_class = "temp_hot"
-        case reading.Temp > 59:
+        case temp > 59:
           temp_class = "temp_warm"
         default:
           temp_class = "temp_good"
@@ -60,10 +123,10 @@
       <% if reading.Temp == -255 { %>
        <td>N/A</td>
       <% } else { %>
-       <td class="temp <%=temp_class %>"><%= reading.Temp %></td>
+       <td class="temp <%=temp_class %>"><%= temp %></td>
       <% } %>
 
-      <td><%= reading.CreatedAt.Format("15:04:05 Mon Jan _2") %></td>
+      <td class="created_at"><%= reading.CreatedAt.Format("15:04:05 Mon Jan _2") %></td>
       <td><%= short_sha(reading.Guid) %></td>
       <td><%= short_sha(reading.SourceGuid) %></td>
       <td><%= reading.IPs %></td>
@@ -77,15 +140,16 @@
 
       </tr>
   <% } %>
+  </tbody>
 </table>
 
 <script type="text/javascript">
-  $( function() {
+  //$( function() {
     //el = $('.reading-body');
     //el.find("pre code").each( function(i, block) {
     //  hljs.highlightBlock( block );
     //})
-  });
+  //});
 </script>
 
 </body>
