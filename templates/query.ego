@@ -10,7 +10,7 @@
     html{
         box-sizing: border-box;
         font-family: Arimo,sans-serif;
-        font-size: 0.9rem;
+        font-size: 1.1rem;
         color: #e6eff0;
         background: #32382b;
     }
@@ -38,7 +38,7 @@
     th {
         border-right: 2px solid rgba(0,0,0,.2);
         padding: .7rem 0;
-        font-size: 1.1rem;
+        font-size: 1.2rem;
         font-weight: normal;
         font-variant: small-caps;
     }
