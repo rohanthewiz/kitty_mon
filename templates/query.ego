@@ -82,7 +82,7 @@
     .tool { font-size: 0.7em; color:#401020; padding-left: 0.5em }
     .heading { margin: 1px auto; padding-left:2px; width: 98%% }
   </style>
-  <!-- <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.3.min.js"></script> -->
+  <script type="text/javascript" src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
 </head>
 <body>
 <% readings_count := len(readings) %>
@@ -90,7 +90,7 @@
   <span class="h1">KittyMon</span> <span class="count"><%= readings_count %> found</span>  <a class="tool" href="/q/all">All</a>
 </div>
 
-<table>
+<table id="temp_table">
   <thead>
   <tr>
   <th class="temp">Temp</th><th class="created_at">Created At</th><th>Reading Guid</th><th>Source Guid</th><th>Source IP</th>
@@ -142,12 +142,14 @@
 </table>
 
 <script type="text/javascript">
-  //$( function() {
-    //el = $('.reading-body');
+  $( function() {
+    scrollbar_width = parseInt($('#temp_table tbody').css('width')) -
+                      parseInt($('table tbody tr:first').css('width'));
+    $('#temp_table thead tr').css('padding-right', '' + scrollbar_width + 'px');
     //el.find("pre code").each( function(i, block) {
     //  hljs.highlightBlock( block );
     //})
-  //});
+  });
 </script>
 
 </body>
