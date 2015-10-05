@@ -13,5 +13,6 @@ func doRoutes(router * httprouter.Router) {
 //	router.GET("/json/qi/:id", QueryIdAsJson)
 	router.GET("/q/:query/l/:limit", Query)
 	router.GET("/del/:id", WebDelete)
+	router.GET("/del2weeks/:secret", WebDelete2Weeks)
 	//router.GET("/js/:file", ServeJS)
 }

@@ -83,6 +83,14 @@ func WebDelete(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 	http.Redirect(w, r, "/q/all/l/100", http.StatusFound)
 }
 
+func WebDelete2Weeks(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+	if p.ByName("secret") == "gonotes" {
+		delete_gt_2weeks()
+		pl("Delete should be completed at this point")
+	}
+	http.Redirect(w, r, "/q/all/l/100", http.StatusFound)
+}
+
 func ServeJS(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 	http.ServeFile(w, r, path.Join("js", p.ByName("file")))
 }

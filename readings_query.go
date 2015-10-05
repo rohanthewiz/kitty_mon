@@ -1,5 +1,8 @@
 package main
-import "errors"
+import (
+	"errors"
+	"time"
+)
 
 func getReading(guid string) (Reading, error) {
 	var reading Reading
@@ -13,7 +16,7 @@ func getReading(guid string) (Reading, error) {
 
 func getRecentReadings() ([]Reading, error) {
 	var readings []Reading
-	q := db.Order("created_at desc").Limit(60).Find(&readings)
+	q := db.Order("created_at desc").Limit(opts.L).Find(&readings)
 	return readings, q.Error
 }
 
@@ -22,3 +25,14 @@ func getAllReadings() ([]Reading, error) {
 	q := db.Order("created_at desc").Find(&readings)
 	return readings, q.Error
 }
+
+func delete_gt_2weeks() {
+	now := time.Now()
+	last_week := now.Add(-time.Duration(24*7*2)*time.Hour)
+	db.Where("created_at < ?", last_week).Delete(Reading{})
+
+	//if err := db.Where("name = ?", "jinzhu").First(&user).Error; err != nil {
+	//// error handling...
+	//}
+}
+

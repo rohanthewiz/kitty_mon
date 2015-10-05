@@ -78,8 +78,8 @@
     .temp_good { color:darkgreen; }
     .created_at { width: 25%% }
     .title { font-weight: bold; color:darkgreen; padding-top: 0.4em }
-    .count { font-size: 0.8em; color:#f0e9e6; padding-left: 0.5em; padding-right: 0.5em }
-    .tool { font-size: 0.7em; color:#401020; padding-left: 0.5em }
+    .count { font-size: 1rem; color:white; padding-left: 0.5em; padding-right: 0.5em }
+    .tool { font-size: 1rem; color:white; padding-left: 0.5em }
     .heading { margin: 1px auto; padding-left:2px; width: 98%% }
   </style>
   <script type="text/javascript" src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
