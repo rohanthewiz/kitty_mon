@@ -92,7 +92,7 @@ func main() {
 	if opts.GetNodeToken != "" {
 		pt, err := getNodeToken(opts.GetNodeToken)
 		if err != nil {fpl("Error retrieving token"); return}
-		fpf("Node token is: %s-%s\nYou will now need to run the client with \n'go_notes -save_node_token the_token'\n",
+		fpf("Node token is: %s-%s\nYou will now need to run the client with \n'kitty_mon -save_node_token the_token'\n",
 			whoAmI(), pt)
 		return
 	}

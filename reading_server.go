@@ -57,11 +57,11 @@ func handleConnection(conn net.Conn) {
 			//     The server stores this as a new node entry.
 			// (2) In a manual operation (At the cmd line for now), the client provides its db signature (guid)
 			//     to the server in a request for an auth_token
-			//     (a) The client does ./go_notes -whoami  # output the client's guid
+			//     (a) The client does ./kitty_mon -whoami  # output the client's guid
 			//     (b) At the server a token is generated for the client with
-			//         ./go_notes -get_node_token node_guid
+			//         ./kitty_mon -get_node_token node_guid
 			//     (c) The client saves this token with
-			//         ./go_notes -save_node_token the_token (detail: the_token here is of the format "server_id-auth_token")
+			//         ./kitty_mon -save_node_token the_token (detail: the_token here is of the format "server_id-auth_token")
 		case "WhoAreYou":
 			node_id = msg.Param // receive the client's GUID (db signature)
 			pd("Client id is:", short_sha(node_id))
@@ -112,7 +112,7 @@ func handleConnection(conn net.Conn) {
 			if numReadings < 1 { pl("No remote changes."); return }
 
 			readings := make([]Reading, numReadings) // prealloc
-			sendMsg(encoder, Message{Type: "SendReadings"}) // Send the actual changes
+			sendMsg(encoder, Message{Type: "SendReadings"}) // Request to send the actual changes
 			// Receive readings, extract the Readings, save into readings
 			for i := 0; i < numReadings; i++ {
 				msg = Message{}

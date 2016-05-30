@@ -128,7 +128,7 @@
        <td class="temp <%=temp_class %>"><%= temp %></td>
       <% } %>
 
-      <td class="created_at"><%= reading.CreatedAt.Format("15:04:05 Mon Jan _2") %></td>
+      <td class="created_at"><%= reading.MeasurementTimestamp.Format("15:04:05 Mon Jan _2") %></td>
       <td><%= short_sha(reading.Guid) %></td>
       <td><%= short_sha(reading.SourceGuid) %></td>
       <td><%= reading.IPs %></td>

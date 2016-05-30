@@ -26,6 +26,7 @@ func poll_temp() {
 				SourceGuid: whoAmI(),
 				IPs: IPs(true),
 				Temp: cat_temp(),
+				MeasurementTimestamp: time.Now(),
 				Sent: 0,
 			}
 		}

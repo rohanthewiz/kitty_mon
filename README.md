@@ -1,6 +1,16 @@
 # Kitty Monitor
 
-#### Project Status: Alpha
+#### Project Status: Beta
+
+## Synopsis
+Kitty Monitor is a system for monitoring the temperature of a remote location.
+* For simplicity and cost-effectiveness, the internal board temperature of an Odroid C1+/C2 (buy at hardkernel.com or ameridroid.com) is the sensor used
+* The client is designed to run on a Ubuntu based operating system
+* The Odroid locally polls it's internal system temperature and saves it to a SQLite database (typically every 2mins)
+* The Odroid sends any unsent readings to the server (typically every 4mins)
+* The server collects and displays these readings in a webserver
+* There is much more that can be done on the webserver side, but displaying raw readings for now: http://gonotes.net:9080/q/all/l/20
+* The temperature provided is not an exact reading of ambient temperature, but an indication in case of say failure of an airconditioning unit
 
 ## Getting Setup
 
@@ -21,6 +31,7 @@ GOPATH/src/yourdomain.com/your_project
 ```
 
 ## Getting and Building KittyMonitor
+Note that both the server and client is provided from the same binary.
 (You may need Mercurial installed)
 
 ```
@@ -44,10 +55,12 @@ $GOPATH/bin/ego -package main  # compile the template before doing 'go build'
 ```
 
 ## Using KittyMonitor
-KittyMonitor launches a goroutine that polls system board temperature (of the Ordroid C1+. see hardkernel.com).
-The main thread continues in an infinite loop to connect to the server every 4mins and send any unsent readings.
+KittyMonitor launches a goroutine that polls system board temperature (of the Odroid C1+. see hardkernel.com).
+The main thread continues in an infinite loop to:
+ 1. poll temperature every 2mins
+ 2. connect to the server every 4mins and send any unsent readings. 
 
-### Get the server's secret token (you'll need to get the token to the client by emailing or remote copy)
+### Get the server's secret token (you'll need to copy the token unto the client)
 
 ```
 ./kitty_mon -get_server_secret # => 9A7blahblah123...
@@ -76,16 +89,13 @@ $ ./kitty_mon -synch_client ServerNameOrIP -server_secret 9A7blahblah123... -env
 In a browser go to http://ServerNameOrIP:9080
 See my example at http://gonotes.net:9080
 
-### Querying via Web Server (Coming soon...)
+### Listing Readings
 
-	/q/:query - Query in tag, title, description or body
-	/q/:query/l/:limit - Same as above, but with a limit
+	/q/:query/l/:limit # replace :limit with a numeric limit
 
 Examples:
 ```
-    http://localhost:8080/q/all/l/60 # This is the only one working for now. The rest is coming soon...
-    # http://localhost:8080/q/test # All readings containing 'test' in any field
-    # http://localhost:8080/q/test/l/1 # Same as above but limit 1
+    http://localhost:8080/q/all/l/60 # List 60 readings
 ```
 You will be able to delete (soon) by clicking the title of the reading. This takes you to single reading view.
 From there you can click the 'Delete' link
@@ -97,15 +107,10 @@ From there you can click the 'Delete' link
     -l "-1" -- Limit the number of readings returned - default: -1 (no limit)
     -admin="" -- Privileged actions like 'delete_tables' (drops the readings table)
 
-### If You Care to Know
-    KittyMonitor stores readings in four simple fields:
--   Reading GUID
--   Source node's GUID
--   Source node's IP
--   Temp
-
 ### TODO
-- A lot since we are in Alpha
+- A lot since we are in Beta
+- Summarization, graphs, dashboard
+- SMS Alerts
 - Token based auth webserver mode
 
 ### TIPS

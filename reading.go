@@ -14,7 +14,9 @@ type Reading struct {
 	IPs string `sql: "size:254"`
 	Sent int  // has the reading been sent // bool 0 - false, 1 - true
 	Temp int  // temperature
-	CreatedAt time.Time
+	MeasurementTimestamp time.Time // True CreatedAt for the reading,
+			// since GORM also updates CreatedAt when saved on the server
+	CreatedAt time.Time // GORM automatically updates this field on save
 }
 
 type byCreatedAt []Reading
@@ -49,7 +51,7 @@ func processReadings(readings * []Reading) {
 }
 
 func (r Reading) save() bool {
-	r.Id = 0 // Make sure the reading has a zero id for creation
+	r.Id = 0 // Make sure the reading has a zero id for db creation
 								 // A non-zero Id will not be created
 	db.Create(&r) // will auto create contained objects too and it's smart - 'nil' children will not be created :-)
 	if !db.NewRecord(r) { // was it saved?
