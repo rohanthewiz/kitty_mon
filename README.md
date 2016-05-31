@@ -55,7 +55,7 @@ $GOPATH/bin/ego -package main  # compile the template before doing 'go build'
 ```
 
 ## Using KittyMonitor
-KittyMonitor launches a goroutine that polls system board temperature (of the Odroid C1+. see hardkernel.com).
+KittyMonitor launches a goroutine that polls system board temperature of the Odroid.
 The main thread continues in an infinite loop to:
  1. poll temperature every 2mins
  2. connect to the server every 4mins and send any unsent readings. 
