@@ -1,26 +1,10 @@
 package main
+
 import(
 	"net"
 	"encoding/gob"
-	"time"
 	"strconv"
 )
-
-// A Node represents a single network entity.
-// IsLocal determines if the entry is for self
-// Token is the local db signature if IsLocal
-// or the mutual auth key for access between local and the specified node
-type Node struct {
-	Id			int64
-	Guid		string `sql: "size:255"`
-	Name		string `sql: "size:255"`
-	Token		string `sql: "size:255"`
-	IP string `sql: "size:255"`
-	Status string `sql: "size:255"`
-	IsLocal int  // bool 0 - false, 1 - true
-	CreatedAt 	time.Time
-	UpdatedAt	time.Time
-}
 
 func synch_client(host string, server_secret string) {
 	conn, err := net.Dial("tcp", host + ":" + opts.SynchPort)
@@ -59,15 +43,15 @@ func synch_client(host string, server_secret string) {
 		// Obtain the node object which represents the server
 		node, err := getNodeByGuid(guid)
 		if err != nil { fpl("Error retrieving node object"); return }
-		msg.Param2 = ""  // hide the evidence
+		msg.Param2 = ""  // clear for next msg
 
 		// Auth
 		msg.Type = "AuthMe"
 		msg.Param = node.Token // This is our auth token for this node (server). It is set by one of two access granting mechanisms
 
-		if node.Name == "" && opts.NodeName != "" {
+		if opts.NodeName != "" {
 			node.Name = opts.NodeName // The server will know this node as this name
-			db.Save(&node)
+			db.Save(&node) // Save it locally
 			msg.Param2 = opts.NodeName
 		}
 		sendMsg(enc, msg)

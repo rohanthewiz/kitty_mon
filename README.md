@@ -58,7 +58,9 @@ $GOPATH/bin/ego -package main  # compile the template before doing 'go build'
 KittyMonitor launches a goroutine that polls system board temperature of the Odroid.
 The main thread continues in an infinite loop to:
  1. poll temperature every 2mins
- 2. connect to the server every 4mins and send any unsent readings. 
+ 2. connect to the server every 4mins and send any unsent readings.
+ 
+Usage info: `kitty_mon -h` 
 
 ### Get the server's secret token (you'll need to copy the token unto the client)
 
@@ -106,6 +108,20 @@ From there you can click the 'Delete' link
     -db "" -- Sqlite DB path. KittyMon will try to create the database 'kitty_mon.sqlite' in your home directory by default
     -l "-1" -- Limit the number of readings returned - default: -1 (no limit)
     -admin="" -- Privileged actions like 'delete_tables' (drops the readings table)
+
+### Local Testing
+For testing you can run a client and server on the same machine, just use different databases
+Example:
+
+```
+# Start the server with the default database
+./kitty_mon
+# Start the client with test.sqlite
+./kitty_mon -db test.sqlite -synch_client localhost -node_name TestClient
+# View at localhost:9080
+```
+If no readings are listed then your workstation may not support internal temperature reporting.
+That's okay, the Odroid C1/C2 do!
 
 ### TODO
 - A lot since we are in Beta

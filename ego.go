@@ -14,7 +14,7 @@ var _ = fmt.Sprint("") // just so that we can keep the fmt import for now
 //line templates/query.ego:2
 _, _ = io.WriteString(w, "\n")
 //line templates/query.ego:3
-_, _ = io.WriteString(w, "\n<!DOCTYPE html>\n<html>\n<head>\n  <style>\n    @import url(https://fonts.googleapis.com/css?family=Arimo:400,700);\n    * {position:relative;margin:0;padding:0; border: 0 none;}\n    *, *:before, *:after {box-sizing: inherit;}\n    html{\n        box-sizing: border-box;\n        font-family: Arimo,sans-serif;\n        font-size: 1.1rem;\n        color: #e6eff0;\n        background: #32382b;\n    }\n    table * {height: auto; min-height: none} /* fixed ie9 & <*/\n    table {\n        background: #bec28b;\n        table-layout: fixed;\n        margin: 2px auto;\n        width: 98%;\n        box-shadow: 0 0 3px 1px rgba(0,0,0,.4);\n        border-collapse: collapse;\n        border: 1px solid rgba(0,0,0,.5);\n        border-top: 0 none;\n    }\n    thead {\n        background-color: #788056;\n        text-align: center;\n        z-index: 2;\n    }\n    thead tr {\n        padding-right: 16px;\n        box-shadow: 0 0px 1px rgba(0,0,0,0.1);\n        z-index: 2;\n    }\n    th {\n        border-right: 2px solid rgba(0,0,0,.2);\n        padding: .7rem 0;\n        font-size: 1.2rem;\n        font-weight: normal;\n        font-variant: small-caps;\n    }\n    tbody {\n        display: block;\n        height: calc(100vh - 5rem);\n        min-height: calc(200px + 1px); /* ie9 and < fix */\n        overflow-Y: auto;\n        color: #000;\n    }\n    tr {\n        display: block;\n        overflow: hidden;\n    }\n    tbody tr:nth-child(odd) {\n        background: rgba(0,0,0,.1);\n    }\n    th, td {\n        width: 22%;\n        float:left;\n    }\n    td {\n        padding: .5rem 0 .5rem 1rem;\n        border-right: 2px solid rgba(0,0,0,.2);\n    }\n    td:nth-child(2n) {color: #fff;}\n    th:last-child, td:last-child {\n        text-align: center;\n        border-right: 0 none;\n        padding-left: 0;\n    }\n    .h1 { font-size: 1.2em; margin-bottom: 0.1em; margin-left:32px; padding: 0.1em }\n    .temp {width: 9%; font-weight: bold; }\n    .temp_fail { color:red; }\n    .temp_hot { color:#a07030; }\n    .temp_warm { color:yellow; }\n    .temp_good { color:darkgreen; }\n    .created_at { width: 25% }\n    .title { font-weight: bold; color:darkgreen; padding-top: 0.4em }\n    .count { font-size: 1rem; color:white; padding-left: 0.5em; padding-right: 0.5em }\n    .tool { font-size: 1rem; color:white; padding-left: 0.5em }\n    .heading {\n      margin: 1px auto; padding-left:2px; width: 98%;\n      background-image: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiIHN0YW5kYWxvbmU9Im5vIj8+PHN2ZyAgIHhtbG5zOm9zYj0iaHR0cDovL3d3dy5vcGVuc3dhdGNoYm9vay5vcmcvdXJpLzIwMDkvb3NiIiAgIHhtbG5zOmRjPSJodHRwOi8vcHVybC5vcmcvZGMvZWxlbWVudHMvMS4xLyIgICB4bWxuczpjYz0iaHR0cDovL2NyZWF0aXZlY29tbW9ucy5vcmcvbnMjIiAgIHhtbG5zOnJkZj0iaHR0cDovL3d3dy53My5vcmcvMTk5OS8wMi8yMi1yZGYtc3ludGF4LW5zIyIgICB4bWxuczpzdmc9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiAgIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgICB4bWxuczpzb2RpcG9kaT0iaHR0cDovL3NvZGlwb2RpLnNvdXJjZWZvcmdlLm5ldC9EVEQvc29kaXBvZGktMC5kdGQiICAgeG1sbnM6aW5rc2NhcGU9Imh0dHA6Ly93d3cuaW5rc2NhcGUub3JnL25hbWVzcGFjZXMvaW5rc2NhcGUiICAgd2lkdGg9IjE1OC44MTQ1OW1tIiAgIGhlaWdodD0iMTA1LjA4MDc1bW0iICAgdmlld0JveD0iMCAwIDU2Mi43Mjg4NyAzNzIuMzMzMzciICAgaWQ9InN2ZzIiICAgdmVyc2lvbj0iMS4xIiAgIGlua3NjYXBlOnZlcnNpb249IjAuOTEgciIgICBzb2RpcG9kaTpkb2NuYW1lPSJraXR0eTMuc3ZnIiAgIGlua3NjYXBlOmV4cG9ydC1maWxlbmFtZT0iL2hvbWUvcm8vRG9jdW1lbnRzL1JvaC9raXR0eTJfaWNvbi5wbmciICAgaW5rc2NhcGU6ZXhwb3J0LXhkcGk9IjUuNzU3NjU3MSIgICBpbmtzY2FwZTpleHBvcnQteWRwaT0iNS43NTc2NTcxIj4gIDxkZWZzICAgICBpZD0iZGVmczQiPiAgICA8bGluZWFyR3JhZGllbnQgICAgICAgaWQ9ImxpbmVhckdyYWRpZW50NDI3MyIgICAgICAgb3NiOnBhaW50PSJzb2xpZCI+ICAgICAgPHN0b3AgICAgICAgICBzdHlsZT0ic3RvcC1jb2xvcjojMDAwMDAwO3N0b3Atb3BhY2l0eToxOyIgICAgICAgICBvZmZzZXQ9IjAiICAgICAgICAgaWQ9InN0b3A0Mjc1IiAvPiAgICA8L2xpbmVhckdyYWRpZW50PiAgICA8bGluZWFyR3JhZGllbnQgICAgICAgaWQ9ImxpbmVhckdyYWRpZW50NDI2NyIgICAgICAgb3NiOnBhaW50PSJzb2xpZCI+ICAgICAgPHN0b3AgICAgICAgICBzdHlsZT0ic3RvcC1jb2xvcjojMDAwMDAyO3N0b3Atb3BhY2l0eToxOyIgICAgICAgICBvZmZzZXQ9IjAiICAgICAgICAgaWQ9InN0b3A0MjY5IiAvPiAgICA8L2xpbmVhckdyYWRpZW50PiAgPC9kZWZzPiAgPHNvZGlwb2RpOm5hbWVkdmlldyAgICAgaWQ9ImJhc2UiICAgICBwYWdlY29sb3I9IiNmZmZmZmYiICAgICBib3JkZXJjb2xvcj0iIzY2NjY2NiIgICAgIGJvcmRlcm9wYWNpdHk9IjEuMCIgICAgIGlua3NjYXBlOnBhZ2VvcGFjaXR5PSIwLjAiICAgICBpbmtzY2FwZTpwYWdlc2hhZG93PSIyIiAgICAgaW5rc2NhcGU6em9vbT0iMC43MDAwMDAwMSIgICAgIGlua3NjYXBlOmN4PSI3NjMuNDE5NDIiICAgICBpbmtzY2FwZTpjeT0iMTc3LjkwOTI5IiAgICAgaW5rc2NhcGU6ZG9jdW1lbnQtdW5pdHM9InB4IiAgICAgaW5rc2NhcGU6Y3VycmVudC1sYXllcj0ibGF5ZXIxIiAgICAgc2hvd2dyaWQ9ImZhbHNlIiAgICAgc2hvd2d1aWRlcz0idHJ1ZSIgICAgIGlua3NjYXBlOmd1aWRlLWJib3g9InRydWUiICAgICBpbmtzY2FwZTp3aW5kb3ctd2lkdGg9IjE5MDgiICAgICBpbmtzY2FwZTp3aW5kb3ctaGVpZ2h0PSIxMDIyIiAgICAgaW5rc2NhcGU6d2luZG93LXg9IjAiICAgICBpbmtzY2FwZTp3aW5kb3cteT0iMCIgICAgIGlua3NjYXBlOndpbmRvdy1tYXhpbWl6ZWQ9IjEiICAgICBmaXQtbWFyZ2luLXRvcD0iMCIgICAgIGZpdC1tYXJnaW4tbGVmdD0iMCIgICAgIGZpdC1tYXJnaW4tcmlnaHQ9IjAiICAgICBmaXQtbWFyZ2luLWJvdHRvbT0iMCIgICAgIGlua3NjYXBlOnNob3dwYWdlc2hhZG93PSJ0cnVlIiAgICAgc2hvd2JvcmRlcj0iZmFsc2UiIC8+ICA8bWV0YWRhdGEgICAgIGlkPSJtZXRhZGF0YTciPiAgICA8cmRmOlJERj4gICAgICA8Y2M6V29yayAgICAgICAgIHJkZjphYm91dD0iIj4gICAgICAgIDxkYzpmb3JtYXQ+aW1hZ2Uvc3ZnK3htbDwvZGM6Zm9ybWF0PiAgICAgICAgPGRjOnR5cGUgICAgICAgICAgIHJkZjpyZXNvdXJjZT0iaHR0cDovL3B1cmwub3JnL2RjL2RjbWl0eXBlL1N0aWxsSW1hZ2UiIC8+ICAgICAgICA8ZGM6dGl0bGU+PC9kYzp0aXRsZT4gICAgICA8L2NjOldvcms+ICAgIDwvcmRmOlJERj4gIDwvbWV0YWRhdGE+ICA8ZyAgICAgaW5rc2NhcGU6bGFiZWw9IkxheWVyIDEiICAgICBpbmtzY2FwZTpncm91cG1vZGU9ImxheWVyIiAgICAgaWQ9ImxheWVyMSIgICAgIHRyYW5zZm9ybT0idHJhbnNsYXRlKC0zMDQuNzUyNDksLTY2NS45MTM3NCkiPiAgICA8cGF0aCAgICAgICBzdHlsZT0iZmlsbDojZmZmZTU1O2ZpbGwtb3BhY2l0eToxO2ZpbGwtcnVsZTpldmVub2RkO3N0cm9rZTojMDAwMDAwO3N0cm9rZS13aWR0aDoxNC42MTA5NjA5NjtzdHJva2UtbGluZWNhcDpidXR0O3N0cm9rZS1saW5lam9pbjpyb3VuZDtzdHJva2UtbWl0ZXJsaW1pdDo0O3N0cm9rZS1kYXNoYXJyYXk6bm9uZTtzdHJva2Utb3BhY2l0eToxIiAgICAgICBkPSJtIDU4OC45MjExNSwxMDMwLjcwNDEgYyAyMDUuMDcwOTQsOC42NTk5IDE5Mi44MTkwMiwtMjE4LjU4MzI1IDIyOC45MDk0MywtMzU3LjQ4NTY0IGwgLTExNC40NTQ3Miw2NS4wNjA5OCBjIC04MS4wOTQyNSwtNDguMzMzMjEgLTE1Ny4zNTA2NiwtNDQuOTE4MzYgLTIyOS43MjY5NywwIEwgMzYwLjAxMTcsNjczLjIxODQ2IGMgNTMuODAwNzMsMTI3Ljk5Njg1IDE5LjIxOTQ1LDM2Mi4xODMyNCAyMjguOTA5NDUsMzU3LjQ4NTY0IHoiICAgICAgIGlkPSJwYXRoNDcwNiIgICAgICAgaW5rc2NhcGU6Y29ubmVjdG9yLWN1cnZhdHVyZT0iMCIgICAgICAgc29kaXBvZGk6bm9kZXR5cGVzPSJjY2NjY2MiIC8+ICAgIDxwYXRoICAgICAgIHN0eWxlPSJmaWxsOiNmZmRkNTU7ZmlsbC1ydWxlOmV2ZW5vZGQ7c3Ryb2tlOiMwMDAwMDA7c3Ryb2tlLXdpZHRoOjE0LjYxMDk2MDk2O3N0cm9rZS1saW5lY2FwOmJ1dHQ7c3Ryb2tlLWxpbmVqb2luOnJvdW5kO3N0cm9rZS1taXRlcmxpbWl0OjQ7c3Ryb2tlLWRhc2hhcnJheTpub25lO3N0cm9rZS1vcGFjaXR5OjEiICAgICAgIGQ9Im0gNTc4LjI1NDQ1LDg1NS4wODIxMyAxNS4yNTIxMSwxOS40OTc1MyAxNC44MDgyNCwtMTkuNDk3NTMgeiIgICAgICAgaWQ9InBhdGg0NzM3IiAgICAgICBpbmtzY2FwZTpjb25uZWN0b3ItY3VydmF0dXJlPSIwIiAvPiAgICA8cGF0aCAgICAgICBzdHlsZT0iZmlsbDojZmZmZTU1O2ZpbGwtb3BhY2l0eToxO2ZpbGwtcnVsZTpldmVub2RkO3N0cm9rZTojMDAwMDAwO3N0cm9rZS13aWR0aDoxNC42MTA5NjA5NjtzdHJva2UtbGluZWNhcDpidXR0O3N0cm9rZS1saW5lam9pbjpyb3VuZDtzdHJva2UtbWl0ZXJsaW1pdDo0O3N0cm9rZS1kYXNoYXJyYXk6bm9uZTtzdHJva2Utb3BhY2l0eToxIiAgICAgICBkPSJtIDUyOS45Njc4Miw5NDkuNzY0MDMgYyAzNi42NzE3LDAuNjg0OTIgNjEuNzMwMTMsMy43MzI5IDY1LjU0NTM5LC00My4wMzY5OSA1LjY5NDM4LDQ3LjY3OTUgMjcuMjE2ODcsNDIuNTA5NDkgNjIuMjExMSw0My4wMzY5OSIgICAgICAgaWQ9InBhdGg0NzM5IiAgICAgICBpbmtzY2FwZTpjb25uZWN0b3ItY3VydmF0dXJlPSIwIiAgICAgICBzb2RpcG9kaTpub2RldHlwZXM9ImNjYyIgLz4gICAgPHBhdGggICAgICAgc3R5bGU9ImZpbGw6I2ZmZGQ1NTtmaWxsLXJ1bGU6ZXZlbm9kZDtzdHJva2U6I2ZmZmZmZjtzdHJva2Utd2lkdGg6MTYuMTk3MDQwNTY7c3Ryb2tlLWxpbmVjYXA6YnV0dDtzdHJva2UtbGluZWpvaW46cm91bmQ7c3Ryb2tlLW1pdGVybGltaXQ6NDtzdHJva2UtZGFzaGFycmF5Om5vbmU7c3Ryb2tlLW9wYWNpdHk6MSIgICAgICAgZD0ibSA3NDYuOTgxMTQsODg1Ljg0MDEyIDkzLjEwNDExLC0yLjkxMzA4IiAgICAgICBpZD0icGF0aDQ3NDciICAgICAgIGlua3NjYXBlOmNvbm5lY3Rvci1jdXJ2YXR1cmU9IjAiIC8+ICAgIDxwYXRoICAgICAgIHN0eWxlPSJmaWxsOiNmZmRkNTU7ZmlsbC1ydWxlOmV2ZW5vZGQ7c3Ryb2tlOiNmZmZmZmY7c3Ryb2tlLXdpZHRoOjE2LjEwNzkzODc3O3N0cm9rZS1saW5lY2FwOmJ1dHQ7c3Ryb2tlLWxpbmVqb2luOnJvdW5kO3N0cm9rZS1taXRlcmxpbWl0OjQ7c3Ryb2tlLWRhc2hhcnJheTpub25lO3N0cm9rZS1vcGFjaXR5OjEiICAgICAgIGQ9Im0gNzI1LjE1NjU4LDk0NC40MTg0NCA5NC42MzIyLDIyLjEzODc1IiAgICAgICBpZD0icGF0aDQ3NDkiICAgICAgIGlua3NjYXBlOmNvbm5lY3Rvci1jdXJ2YXR1cmU9IjAiIC8+ICAgIDxwYXRoICAgICAgIGlua3NjYXBlOmNvbm5lY3Rvci1jdXJ2YXR1cmU9IjAiICAgICAgIGlkPSJwYXRoNDc2MCIgICAgICAgZD0iTSA0MjcuMDM0ODgsODc3LjU1NzM5IDMyMC43MDU2LDg3NC41Njc3NSIgICAgICAgc3R5bGU9ImZpbGw6I2ZmZGQ1NTtmaWxsLXJ1bGU6ZXZlbm9kZDtzdHJva2U6I2ZlZmVmZTtzdHJva2Utd2lkdGg6MTYuOTk0NjI4OTE7c3Ryb2tlLWxpbmVjYXA6YnV0dDtzdHJva2UtbGluZWpvaW46cm91bmQ7c3Ryb2tlLW1pdGVybGltaXQ6NDtzdHJva2UtZGFzaGFycmF5Om5vbmU7c3Ryb2tlLW9wYWNpdHk6MSIgLz4gICAgPHBhdGggICAgICAgaW5rc2NhcGU6Y29ubmVjdG9yLWN1cnZhdHVyZT0iMCIgICAgICAgaWQ9InBhdGg0NzYyIiAgICAgICBkPSJNIDQ0OC4xOTAxMiw5MzMuODI2NDYgMzQwLjU2NTY2LDk1Ni40ODIxOCIgICAgICAgc3R5bGU9ImZpbGw6I2ZmZGQ1NTtmaWxsLXJ1bGU6ZXZlbm9kZDtzdHJva2U6I2ZlZmVmZTtzdHJva2Utd2lkdGg6MTYuODQxODczMTc7c3Ryb2tlLWxpbmVjYXA6YnV0dDtzdHJva2UtbGluZWpvaW46cm91bmQ7c3Ryb2tlLW1pdGVybGltaXQ6NDtzdHJva2UtZGFzaGFycmF5Om5vbmU7c3Ryb2tlLW9wYWNpdHk6MSIgLz4gICAgPGVsbGlwc2UgICAgICAgc3R5bGU9Im9wYWNpdHk6MTtmaWxsOiNmZmZlNTU7ZmlsbC1vcGFjaXR5OjE7c3Ryb2tlOiMwMzAzMDM7c3Ryb2tlLXdpZHRoOjI1Ljg5OTk5OTYyO3N0cm9rZS1saW5lY2FwOnJvdW5kO3N0cm9rZS1saW5lam9pbjpyb3VuZDtzdHJva2UtbWl0ZXJsaW1pdDo0O3N0cm9rZS1kYXNoYXJyYXk6bm9uZTtzdHJva2UtZGFzaG9mZnNldDowO3N0cm9rZS1vcGFjaXR5OjEiICAgICAgIGlkPSJwYXRoNDQ0NSIgICAgICAgY3g9IjUzNi4zODUwNyIgICAgICAgY3k9IjgxNi4xMjc4NyIgICAgICAgcng9IjguMDgxMjIwNiIgICAgICAgcnk9IjMuMDMwNDU3NSIgLz4gICAgPGVsbGlwc2UgICAgICAgcnk9IjMuMDMwNDU3NSIgICAgICAgcng9IjguMDgxMjIwNiIgICAgICAgY3k9IjgxNy4xOTkyOCIgICAgICAgY3g9IjY1Mi4wOTk0MyIgICAgICAgaWQ9ImVsbGlwc2U0NDQ5IiAgICAgICBzdHlsZT0ib3BhY2l0eToxO2ZpbGw6I2ZmZmU1NTtmaWxsLW9wYWNpdHk6MTtzdHJva2U6IzAzMDMwMztzdHJva2Utd2lkdGg6MjUuODk5OTk5NjI7c3Ryb2tlLWxpbmVjYXA6cm91bmQ7c3Ryb2tlLWxpbmVqb2luOnJvdW5kO3N0cm9rZS1taXRlcmxpbWl0OjQ7c3Ryb2tlLWRhc2hhcnJheTpub25lO3N0cm9rZS1kYXNob2Zmc2V0OjA7c3Ryb2tlLW9wYWNpdHk6MSIgLz4gIDwvZz48L3N2Zz4=);\n      background-size: contain; background-position: left center; background-repeat: no-repeat;\n     }\n  </style>\n  <script type=\"text/javascript\" src=\"https://code.jquery.com/jquery-1.11.3.min.js\"></script>\n</head>\n<body>\n")
+_, _ = io.WriteString(w, "\n<!DOCTYPE html>\n<html>\n<head>\n  <style>\n    @import url(https://fonts.googleapis.com/css?family=Arimo:400,700);\n    * {position:relative;margin:0;padding:0; border: 0 none;}\n    *, *:before, *:after {box-sizing: inherit;}\n    html{\n        box-sizing: border-box;\n        font-family: Arimo,sans-serif;\n        font-size: 1.1rem;\n        color: #e6eff0;\n        background: #32382b;\n    }\n    table * {height: auto; min-height: none} /* fixed ie9 & <*/\n    table {\n        background: #bec28b;\n        table-layout: fixed;\n        margin: 2px auto;\n        width: 98%;\n        box-shadow: 0 0 3px 1px rgba(0,0,0,.4);\n        border-collapse: collapse;\n        border: 1px solid rgba(0,0,0,.5);\n        border-top: 0 none;\n    }\n    thead {\n        background-color: #788056;\n        text-align: center;\n        z-index: 2;\n    }\n    thead tr {\n        padding-right: 16px;\n        box-shadow: 0 0px 1px rgba(0,0,0,0.1);\n        z-index: 2;\n    }\n    th {\n        border-right: 2px solid rgba(0,0,0,.2);\n        padding: .7rem 0;\n        font-size: 1.2rem;\n        font-weight: normal;\n        font-variant: small-caps;\n    }\n    tbody {\n        display: block;\n        height: calc(100vh - 5rem);\n        min-height: calc(200px + 1px); /* ie9 and < fix */\n        overflow-Y: auto;\n        color: #000;\n    }\n    tr {\n        display: block;\n        overflow: hidden;\n    }\n    tbody tr:nth-child(odd) {\n        background: rgba(0,0,0,.1);\n    }\n    th, td {\n        width: 22%;\n        float:left;\n    }\n    td {\n        padding: .5rem 0 .5rem 1rem;\n        border-right: 2px solid rgba(0,0,0,.2);\n    }\n    td:nth-child(2n) {color: #fff;}\n    th:last-child, td:last-child {\n        text-align: center;\n        border-right: 0 none;\n        padding-left: 0;\n    }\n    .h1 { font-size: 1.2em; margin-bottom: 0.1em; margin-left:32px; padding: 0.1em }\n    .temp {width: 9%; font-weight: bold; font-size: 1.1em }\n    .temp_fail { color:red; }\n    .temp_hot { color:#a07030; }\n    .temp_warm { color:yellow; }\n    .temp_good { color:darkgreen; }\n    .created_at { width: 25% }\n    .title { font-weight: bold; color:darkgreen; padding-top: 0.4em }\n    .count { font-size: 1rem; color:white; padding-left: 0.5em; padding-right: 0.5em }\n    .tool { font-size: 1rem; color:white; padding-left: 0.5em }\n    .heading {\n      margin: 1px auto; padding-left:2px; width: 98%;\n      background-image: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiIHN0YW5kYWxvbmU9Im5vIj8+PHN2ZyAgIHhtbG5zOm9zYj0iaHR0cDovL3d3dy5vcGVuc3dhdGNoYm9vay5vcmcvdXJpLzIwMDkvb3NiIiAgIHhtbG5zOmRjPSJodHRwOi8vcHVybC5vcmcvZGMvZWxlbWVudHMvMS4xLyIgICB4bWxuczpjYz0iaHR0cDovL2NyZWF0aXZlY29tbW9ucy5vcmcvbnMjIiAgIHhtbG5zOnJkZj0iaHR0cDovL3d3dy53My5vcmcvMTk5OS8wMi8yMi1yZGYtc3ludGF4LW5zIyIgICB4bWxuczpzdmc9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiAgIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgICB4bWxuczpzb2RpcG9kaT0iaHR0cDovL3NvZGlwb2RpLnNvdXJjZWZvcmdlLm5ldC9EVEQvc29kaXBvZGktMC5kdGQiICAgeG1sbnM6aW5rc2NhcGU9Imh0dHA6Ly93d3cuaW5rc2NhcGUub3JnL25hbWVzcGFjZXMvaW5rc2NhcGUiICAgd2lkdGg9IjE1OC44MTQ1OW1tIiAgIGhlaWdodD0iMTA1LjA4MDc1bW0iICAgdmlld0JveD0iMCAwIDU2Mi43Mjg4NyAzNzIuMzMzMzciICAgaWQ9InN2ZzIiICAgdmVyc2lvbj0iMS4xIiAgIGlua3NjYXBlOnZlcnNpb249IjAuOTEgciIgICBzb2RpcG9kaTpkb2NuYW1lPSJraXR0eTMuc3ZnIiAgIGlua3NjYXBlOmV4cG9ydC1maWxlbmFtZT0iL2hvbWUvcm8vRG9jdW1lbnRzL1JvaC9raXR0eTJfaWNvbi5wbmciICAgaW5rc2NhcGU6ZXhwb3J0LXhkcGk9IjUuNzU3NjU3MSIgICBpbmtzY2FwZTpleHBvcnQteWRwaT0iNS43NTc2NTcxIj4gIDxkZWZzICAgICBpZD0iZGVmczQiPiAgICA8bGluZWFyR3JhZGllbnQgICAgICAgaWQ9ImxpbmVhckdyYWRpZW50NDI3MyIgICAgICAgb3NiOnBhaW50PSJzb2xpZCI+ICAgICAgPHN0b3AgICAgICAgICBzdHlsZT0ic3RvcC1jb2xvcjojMDAwMDAwO3N0b3Atb3BhY2l0eToxOyIgICAgICAgICBvZmZzZXQ9IjAiICAgICAgICAgaWQ9InN0b3A0Mjc1IiAvPiAgICA8L2xpbmVhckdyYWRpZW50PiAgICA8bGluZWFyR3JhZGllbnQgICAgICAgaWQ9ImxpbmVhckdyYWRpZW50NDI2NyIgICAgICAgb3NiOnBhaW50PSJzb2xpZCI+ICAgICAgPHN0b3AgICAgICAgICBzdHlsZT0ic3RvcC1jb2xvcjojMDAwMDAyO3N0b3Atb3BhY2l0eToxOyIgICAgICAgICBvZmZzZXQ9IjAiICAgICAgICAgaWQ9InN0b3A0MjY5IiAvPiAgICA8L2xpbmVhckdyYWRpZW50PiAgPC9kZWZzPiAgPHNvZGlwb2RpOm5hbWVkdmlldyAgICAgaWQ9ImJhc2UiICAgICBwYWdlY29sb3I9IiNmZmZmZmYiICAgICBib3JkZXJjb2xvcj0iIzY2NjY2NiIgICAgIGJvcmRlcm9wYWNpdHk9IjEuMCIgICAgIGlua3NjYXBlOnBhZ2VvcGFjaXR5PSIwLjAiICAgICBpbmtzY2FwZTpwYWdlc2hhZG93PSIyIiAgICAgaW5rc2NhcGU6em9vbT0iMC43MDAwMDAwMSIgICAgIGlua3NjYXBlOmN4PSI3NjMuNDE5NDIiICAgICBpbmtzY2FwZTpjeT0iMTc3LjkwOTI5IiAgICAgaW5rc2NhcGU6ZG9jdW1lbnQtdW5pdHM9InB4IiAgICAgaW5rc2NhcGU6Y3VycmVudC1sYXllcj0ibGF5ZXIxIiAgICAgc2hvd2dyaWQ9ImZhbHNlIiAgICAgc2hvd2d1aWRlcz0idHJ1ZSIgICAgIGlua3NjYXBlOmd1aWRlLWJib3g9InRydWUiICAgICBpbmtzY2FwZTp3aW5kb3ctd2lkdGg9IjE5MDgiICAgICBpbmtzY2FwZTp3aW5kb3ctaGVpZ2h0PSIxMDIyIiAgICAgaW5rc2NhcGU6d2luZG93LXg9IjAiICAgICBpbmtzY2FwZTp3aW5kb3cteT0iMCIgICAgIGlua3NjYXBlOndpbmRvdy1tYXhpbWl6ZWQ9IjEiICAgICBmaXQtbWFyZ2luLXRvcD0iMCIgICAgIGZpdC1tYXJnaW4tbGVmdD0iMCIgICAgIGZpdC1tYXJnaW4tcmlnaHQ9IjAiICAgICBmaXQtbWFyZ2luLWJvdHRvbT0iMCIgICAgIGlua3NjYXBlOnNob3dwYWdlc2hhZG93PSJ0cnVlIiAgICAgc2hvd2JvcmRlcj0iZmFsc2UiIC8+ICA8bWV0YWRhdGEgICAgIGlkPSJtZXRhZGF0YTciPiAgICA8cmRmOlJERj4gICAgICA8Y2M6V29yayAgICAgICAgIHJkZjphYm91dD0iIj4gICAgICAgIDxkYzpmb3JtYXQ+aW1hZ2Uvc3ZnK3htbDwvZGM6Zm9ybWF0PiAgICAgICAgPGRjOnR5cGUgICAgICAgICAgIHJkZjpyZXNvdXJjZT0iaHR0cDovL3B1cmwub3JnL2RjL2RjbWl0eXBlL1N0aWxsSW1hZ2UiIC8+ICAgICAgICA8ZGM6dGl0bGU+PC9kYzp0aXRsZT4gICAgICA8L2NjOldvcms+ICAgIDwvcmRmOlJERj4gIDwvbWV0YWRhdGE+ICA8ZyAgICAgaW5rc2NhcGU6bGFiZWw9IkxheWVyIDEiICAgICBpbmtzY2FwZTpncm91cG1vZGU9ImxheWVyIiAgICAgaWQ9ImxheWVyMSIgICAgIHRyYW5zZm9ybT0idHJhbnNsYXRlKC0zMDQuNzUyNDksLTY2NS45MTM3NCkiPiAgICA8cGF0aCAgICAgICBzdHlsZT0iZmlsbDojZmZmZTU1O2ZpbGwtb3BhY2l0eToxO2ZpbGwtcnVsZTpldmVub2RkO3N0cm9rZTojMDAwMDAwO3N0cm9rZS13aWR0aDoxNC42MTA5NjA5NjtzdHJva2UtbGluZWNhcDpidXR0O3N0cm9rZS1saW5lam9pbjpyb3VuZDtzdHJva2UtbWl0ZXJsaW1pdDo0O3N0cm9rZS1kYXNoYXJyYXk6bm9uZTtzdHJva2Utb3BhY2l0eToxIiAgICAgICBkPSJtIDU4OC45MjExNSwxMDMwLjcwNDEgYyAyMDUuMDcwOTQsOC42NTk5IDE5Mi44MTkwMiwtMjE4LjU4MzI1IDIyOC45MDk0MywtMzU3LjQ4NTY0IGwgLTExNC40NTQ3Miw2NS4wNjA5OCBjIC04MS4wOTQyNSwtNDguMzMzMjEgLTE1Ny4zNTA2NiwtNDQuOTE4MzYgLTIyOS43MjY5NywwIEwgMzYwLjAxMTcsNjczLjIxODQ2IGMgNTMuODAwNzMsMTI3Ljk5Njg1IDE5LjIxOTQ1LDM2Mi4xODMyNCAyMjguOTA5NDUsMzU3LjQ4NTY0IHoiICAgICAgIGlkPSJwYXRoNDcwNiIgICAgICAgaW5rc2NhcGU6Y29ubmVjdG9yLWN1cnZhdHVyZT0iMCIgICAgICAgc29kaXBvZGk6bm9kZXR5cGVzPSJjY2NjY2MiIC8+ICAgIDxwYXRoICAgICAgIHN0eWxlPSJmaWxsOiNmZmRkNTU7ZmlsbC1ydWxlOmV2ZW5vZGQ7c3Ryb2tlOiMwMDAwMDA7c3Ryb2tlLXdpZHRoOjE0LjYxMDk2MDk2O3N0cm9rZS1saW5lY2FwOmJ1dHQ7c3Ryb2tlLWxpbmVqb2luOnJvdW5kO3N0cm9rZS1taXRlcmxpbWl0OjQ7c3Ryb2tlLWRhc2hhcnJheTpub25lO3N0cm9rZS1vcGFjaXR5OjEiICAgICAgIGQ9Im0gNTc4LjI1NDQ1LDg1NS4wODIxMyAxNS4yNTIxMSwxOS40OTc1MyAxNC44MDgyNCwtMTkuNDk3NTMgeiIgICAgICAgaWQ9InBhdGg0NzM3IiAgICAgICBpbmtzY2FwZTpjb25uZWN0b3ItY3VydmF0dXJlPSIwIiAvPiAgICA8cGF0aCAgICAgICBzdHlsZT0iZmlsbDojZmZmZTU1O2ZpbGwtb3BhY2l0eToxO2ZpbGwtcnVsZTpldmVub2RkO3N0cm9rZTojMDAwMDAwO3N0cm9rZS13aWR0aDoxNC42MTA5NjA5NjtzdHJva2UtbGluZWNhcDpidXR0O3N0cm9rZS1saW5lam9pbjpyb3VuZDtzdHJva2UtbWl0ZXJsaW1pdDo0O3N0cm9rZS1kYXNoYXJyYXk6bm9uZTtzdHJva2Utb3BhY2l0eToxIiAgICAgICBkPSJtIDUyOS45Njc4Miw5NDkuNzY0MDMgYyAzNi42NzE3LDAuNjg0OTIgNjEuNzMwMTMsMy43MzI5IDY1LjU0NTM5LC00My4wMzY5OSA1LjY5NDM4LDQ3LjY3OTUgMjcuMjE2ODcsNDIuNTA5NDkgNjIuMjExMSw0My4wMzY5OSIgICAgICAgaWQ9InBhdGg0NzM5IiAgICAgICBpbmtzY2FwZTpjb25uZWN0b3ItY3VydmF0dXJlPSIwIiAgICAgICBzb2RpcG9kaTpub2RldHlwZXM9ImNjYyIgLz4gICAgPHBhdGggICAgICAgc3R5bGU9ImZpbGw6I2ZmZGQ1NTtmaWxsLXJ1bGU6ZXZlbm9kZDtzdHJva2U6I2ZmZmZmZjtzdHJva2Utd2lkdGg6MTYuMTk3MDQwNTY7c3Ryb2tlLWxpbmVjYXA6YnV0dDtzdHJva2UtbGluZWpvaW46cm91bmQ7c3Ryb2tlLW1pdGVybGltaXQ6NDtzdHJva2UtZGFzaGFycmF5Om5vbmU7c3Ryb2tlLW9wYWNpdHk6MSIgICAgICAgZD0ibSA3NDYuOTgxMTQsODg1Ljg0MDEyIDkzLjEwNDExLC0yLjkxMzA4IiAgICAgICBpZD0icGF0aDQ3NDciICAgICAgIGlua3NjYXBlOmNvbm5lY3Rvci1jdXJ2YXR1cmU9IjAiIC8+ICAgIDxwYXRoICAgICAgIHN0eWxlPSJmaWxsOiNmZmRkNTU7ZmlsbC1ydWxlOmV2ZW5vZGQ7c3Ryb2tlOiNmZmZmZmY7c3Ryb2tlLXdpZHRoOjE2LjEwNzkzODc3O3N0cm9rZS1saW5lY2FwOmJ1dHQ7c3Ryb2tlLWxpbmVqb2luOnJvdW5kO3N0cm9rZS1taXRlcmxpbWl0OjQ7c3Ryb2tlLWRhc2hhcnJheTpub25lO3N0cm9rZS1vcGFjaXR5OjEiICAgICAgIGQ9Im0gNzI1LjE1NjU4LDk0NC40MTg0NCA5NC42MzIyLDIyLjEzODc1IiAgICAgICBpZD0icGF0aDQ3NDkiICAgICAgIGlua3NjYXBlOmNvbm5lY3Rvci1jdXJ2YXR1cmU9IjAiIC8+ICAgIDxwYXRoICAgICAgIGlua3NjYXBlOmNvbm5lY3Rvci1jdXJ2YXR1cmU9IjAiICAgICAgIGlkPSJwYXRoNDc2MCIgICAgICAgZD0iTSA0MjcuMDM0ODgsODc3LjU1NzM5IDMyMC43MDU2LDg3NC41Njc3NSIgICAgICAgc3R5bGU9ImZpbGw6I2ZmZGQ1NTtmaWxsLXJ1bGU6ZXZlbm9kZDtzdHJva2U6I2ZlZmVmZTtzdHJva2Utd2lkdGg6MTYuOTk0NjI4OTE7c3Ryb2tlLWxpbmVjYXA6YnV0dDtzdHJva2UtbGluZWpvaW46cm91bmQ7c3Ryb2tlLW1pdGVybGltaXQ6NDtzdHJva2UtZGFzaGFycmF5Om5vbmU7c3Ryb2tlLW9wYWNpdHk6MSIgLz4gICAgPHBhdGggICAgICAgaW5rc2NhcGU6Y29ubmVjdG9yLWN1cnZhdHVyZT0iMCIgICAgICAgaWQ9InBhdGg0NzYyIiAgICAgICBkPSJNIDQ0OC4xOTAxMiw5MzMuODI2NDYgMzQwLjU2NTY2LDk1Ni40ODIxOCIgICAgICAgc3R5bGU9ImZpbGw6I2ZmZGQ1NTtmaWxsLXJ1bGU6ZXZlbm9kZDtzdHJva2U6I2ZlZmVmZTtzdHJva2Utd2lkdGg6MTYuODQxODczMTc7c3Ryb2tlLWxpbmVjYXA6YnV0dDtzdHJva2UtbGluZWpvaW46cm91bmQ7c3Ryb2tlLW1pdGVybGltaXQ6NDtzdHJva2UtZGFzaGFycmF5Om5vbmU7c3Ryb2tlLW9wYWNpdHk6MSIgLz4gICAgPGVsbGlwc2UgICAgICAgc3R5bGU9Im9wYWNpdHk6MTtmaWxsOiNmZmZlNTU7ZmlsbC1vcGFjaXR5OjE7c3Ryb2tlOiMwMzAzMDM7c3Ryb2tlLXdpZHRoOjI1Ljg5OTk5OTYyO3N0cm9rZS1saW5lY2FwOnJvdW5kO3N0cm9rZS1saW5lam9pbjpyb3VuZDtzdHJva2UtbWl0ZXJsaW1pdDo0O3N0cm9rZS1kYXNoYXJyYXk6bm9uZTtzdHJva2UtZGFzaG9mZnNldDowO3N0cm9rZS1vcGFjaXR5OjEiICAgICAgIGlkPSJwYXRoNDQ0NSIgICAgICAgY3g9IjUzNi4zODUwNyIgICAgICAgY3k9IjgxNi4xMjc4NyIgICAgICAgcng9IjguMDgxMjIwNiIgICAgICAgcnk9IjMuMDMwNDU3NSIgLz4gICAgPGVsbGlwc2UgICAgICAgcnk9IjMuMDMwNDU3NSIgICAgICAgcng9IjguMDgxMjIwNiIgICAgICAgY3k9IjgxNy4xOTkyOCIgICAgICAgY3g9IjY1Mi4wOTk0MyIgICAgICAgaWQ9ImVsbGlwc2U0NDQ5IiAgICAgICBzdHlsZT0ib3BhY2l0eToxO2ZpbGw6I2ZmZmU1NTtmaWxsLW9wYWNpdHk6MTtzdHJva2U6IzAzMDMwMztzdHJva2Utd2lkdGg6MjUuODk5OTk5NjI7c3Ryb2tlLWxpbmVjYXA6cm91bmQ7c3Ryb2tlLWxpbmVqb2luOnJvdW5kO3N0cm9rZS1taXRlcmxpbWl0OjQ7c3Ryb2tlLWRhc2hhcnJheTpub25lO3N0cm9rZS1kYXNob2Zmc2V0OjA7c3Ryb2tlLW9wYWNpdHk6MSIgLz4gIDwvZz48L3N2Zz4=);\n      background-size: contain; background-position: left center; background-repeat: no-repeat;\n     }\n  </style>\n  <script type=\"text/javascript\" src=\"https://code.jquery.com/jquery-1.11.3.min.js\"></script>\n</head>\n<body>\n")
 //line templates/query.ego:92
  readings_count := len(readings) 
 //line templates/query.ego:93
@@ -22,7 +22,7 @@ _, _ = io.WriteString(w, "\n<div class=\"heading\">\n  <span class=\"h1\">KittyM
 //line templates/query.ego:94
 _, _ = io.WriteString(w, html.EscapeString(fmt.Sprintf("%v",  readings_count )))
 //line templates/query.ego:94
-_, _ = io.WriteString(w, " found</span>  <a class=\"tool\" href=\"/q/all\">All</a>\n</div>\n\n<table id=\"temp_table\">\n  <thead>\n  <tr>\n  <th class=\"temp\">Temp</th><th class=\"created_at\">Created At</th><th>Reading Guid</th><th>Source Guid</th><th>Source IP</th>\n      ")
+_, _ = io.WriteString(w, " found</span>  <a class=\"tool\" href=\"/q/all\">All</a>\n</div>\n\n<table id=\"temp_table\">\n  <thead>\n  <tr>\n  <th class=\"temp\">Temp</th><th class=\"created_at\">Measured At</th><th>Location</th><th>Source IP</th>\n      ")
 //line templates/query.ego:101
  if readings_count == 1 { 
 //line templates/query.ego:102
@@ -31,16 +31,37 @@ _, _ = io.WriteString(w, "\n        <th>Delete</th>\n      ")
  } 
 //line templates/query.ego:104
 _, _ = io.WriteString(w, "\n  </tr>\n  </thead>\n  <tbody>\n  ")
-//line templates/query.ego:107
- var temp_class string
-  var temp int 
-//line templates/query.ego:109
+//line templates/query.ego:108
+
+  var temp_class string
+  var temp int
+  node_guid_to_name := make(map[string]string)
+  var source_name string
+  
+//line templates/query.ego:114
 _, _ = io.WriteString(w, "\n  ")
-//line templates/query.ego:109
+//line templates/query.ego:114
  for _, reading := range readings { 
-//line templates/query.ego:110
+//line templates/query.ego:115
 _, _ = io.WriteString(w, "\n      ")
-//line templates/query.ego:111
+//line templates/query.ego:116
+
+        // Get/Cache node_name
+        if name_from_cache, ok := node_guid_to_name[reading.SourceGuid]; ok {
+          source_name = name_from_cache // pull from cache
+          fmt.Println("Name from cache", source_name)
+        } else { // pull from db
+          node, err := getNodeByGuid(reading.SourceGuid)
+          if err != nil {
+            source_name = reading.SourceGuid
+            fmt.Println("Name from Source Guid", source_name)
+          } else {
+            source_name = node.Name
+            fmt.Println("Name from db", source_name)
+
+            node_guid_to_name[reading.SourceGuid] = source_name // cache it
+          }
+        }
 
         temp = reading.Temp /1000
         switch {
@@ -54,63 +75,59 @@ _, _ = io.WriteString(w, "\n      ")
           temp_class = "temp_good"
         }
       
-//line templates/query.ego:124
-_, _ = io.WriteString(w, "\n      <tr>\n\n      ")
-//line templates/query.ego:126
- if reading.Temp == -255 { 
-//line templates/query.ego:127
-_, _ = io.WriteString(w, "\n       <td>N/A</td>\n      ")
-//line templates/query.ego:128
- } else { 
-//line templates/query.ego:129
-_, _ = io.WriteString(w, "\n       <td class=\"temp ")
-//line templates/query.ego:129
-_, _ = io.WriteString(w, html.EscapeString(fmt.Sprintf("%v", temp_class )))
-//line templates/query.ego:129
-_, _ = io.WriteString(w, "\">")
-//line templates/query.ego:129
-_, _ = io.WriteString(w, html.EscapeString(fmt.Sprintf("%v",  temp )))
-//line templates/query.ego:129
-_, _ = io.WriteString(w, "</td>\n      ")
-//line templates/query.ego:130
- } 
-//line templates/query.ego:131
-_, _ = io.WriteString(w, "\n\n      <td class=\"created_at\">")
-//line templates/query.ego:132
-_, _ = io.WriteString(w, html.EscapeString(fmt.Sprintf("%v",  reading.MeasurementTimestamp.Format("15:04:05 Mon Jan _2") )))
-//line templates/query.ego:132
-_, _ = io.WriteString(w, "</td>\n      <td>")
-//line templates/query.ego:133
-_, _ = io.WriteString(w, html.EscapeString(fmt.Sprintf("%v",  short_sha(reading.Guid) )))
-//line templates/query.ego:133
-_, _ = io.WriteString(w, "</td>\n      <td>")
-//line templates/query.ego:134
-_, _ = io.WriteString(w, html.EscapeString(fmt.Sprintf("%v",  short_sha(reading.SourceGuid) )))
-//line templates/query.ego:134
-_, _ = io.WriteString(w, "</td>\n      <td>")
-//line templates/query.ego:135
-_, _ = io.WriteString(w, html.EscapeString(fmt.Sprintf("%v",  reading.IPs )))
-//line templates/query.ego:135
-_, _ = io.WriteString(w, "</td>\n      ")
-//line templates/query.ego:136
- if readings_count == 1 { 
-//line templates/query.ego:137
-_, _ = io.WriteString(w, "\n      ")
-//line templates/query.ego:137
- id_str := strconv.FormatInt(reading.Id, 10) 
-//line templates/query.ego:138
-_, _ = io.WriteString(w, "\n      <td><a class=\"tool\" href=\"/del/")
-//line templates/query.ego:138
-_, _ = io.WriteString(w, html.EscapeString(fmt.Sprintf("%v",  id_str )))
-//line templates/query.ego:138
-_, _ = io.WriteString(w, "\"\n            onclick=\"return confirm('Are you sure you want to delete this reading?')\">\n        delete</a>\n      </td>\n      ")
-//line templates/query.ego:142
- } 
-//line templates/query.ego:143
-_, _ = io.WriteString(w, "\n\n      </tr>\n  ")
-//line templates/query.ego:145
- } 
 //line templates/query.ego:146
+_, _ = io.WriteString(w, "\n\n      <tr>\n      ")
+//line templates/query.ego:148
+ if reading.Temp == -255 { 
+//line templates/query.ego:149
+_, _ = io.WriteString(w, "\n       <td>N/A</td>\n      ")
+//line templates/query.ego:150
+ } else { 
+//line templates/query.ego:151
+_, _ = io.WriteString(w, "\n       <td class=\"temp ")
+//line templates/query.ego:151
+_, _ = io.WriteString(w, html.EscapeString(fmt.Sprintf("%v", temp_class )))
+//line templates/query.ego:151
+_, _ = io.WriteString(w, "\">")
+//line templates/query.ego:151
+_, _ = io.WriteString(w, html.EscapeString(fmt.Sprintf("%v",  temp )))
+//line templates/query.ego:151
+_, _ = io.WriteString(w, "</td>\n      ")
+//line templates/query.ego:152
+ } 
+//line templates/query.ego:153
+_, _ = io.WriteString(w, "\n\n      <td class=\"created_at\">")
+//line templates/query.ego:154
+_, _ = io.WriteString(w, html.EscapeString(fmt.Sprintf("%v",  reading.MeasurementTimestamp.Format("15:04:05 Mon Jan _2") )))
+//line templates/query.ego:154
+_, _ = io.WriteString(w, "</td>\n      <td>")
+//line templates/query.ego:155
+_, _ = io.WriteString(w, html.EscapeString(fmt.Sprintf("%v",  source_name )))
+//line templates/query.ego:155
+_, _ = io.WriteString(w, "</td>\n      <td>")
+//line templates/query.ego:156
+_, _ = io.WriteString(w, html.EscapeString(fmt.Sprintf("%v",  reading.IPs )))
+//line templates/query.ego:156
+_, _ = io.WriteString(w, "</td>\n      ")
+//line templates/query.ego:157
+ if readings_count == 1 { 
+//line templates/query.ego:158
+_, _ = io.WriteString(w, "\n      ")
+//line templates/query.ego:158
+ id_str := strconv.FormatInt(reading.Id, 10) 
+//line templates/query.ego:159
+_, _ = io.WriteString(w, "\n      <td><a class=\"tool\" href=\"/del/")
+//line templates/query.ego:159
+_, _ = io.WriteString(w, html.EscapeString(fmt.Sprintf("%v",  id_str )))
+//line templates/query.ego:159
+_, _ = io.WriteString(w, "\"\n            onclick=\"return confirm('Are you sure you want to delete this reading?')\">\n        delete</a>\n      </td>\n      ")
+//line templates/query.ego:163
+ } 
+//line templates/query.ego:164
+_, _ = io.WriteString(w, "\n\n      </tr>\n  ")
+//line templates/query.ego:166
+ } 
+//line templates/query.ego:167
 _, _ = io.WriteString(w, "\n  </tbody>\n</table>\n\n<script type=\"text/javascript\">\n  $( function() {\n    scrollbar_width = parseInt($('#temp_table tbody').css('width')) -\n                      parseInt($('table tbody tr:first').css('width'));\n    $('#temp_table thead tr').css('padding-right', '' + scrollbar_width + 'px');\n    //el.find(\"pre code\").each( function(i, block) {\n    //  hljs.highlightBlock( block );\n    //})\n  });\n</script>\n\n</body>\n</html>\n")
 return nil
 }

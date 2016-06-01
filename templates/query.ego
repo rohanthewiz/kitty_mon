@@ -71,7 +71,7 @@
         padding-left: 0;
     }
     .h1 { font-size: 1.2em; margin-bottom: 0.1em; margin-left:32px; padding: 0.1em }
-    .temp {width: 9%; font-weight: bold; }
+    .temp {width: 9%; font-weight: bold; font-size: 1.1em }
     .temp_fail { color:red; }
     .temp_hot { color:#a07030; }
     .temp_warm { color:yellow; }
@@ -97,17 +97,38 @@
 <table id="temp_table">
   <thead>
   <tr>
-  <th class="temp">Temp</th><th class="created_at">Created At</th><th>Reading Guid</th><th>Source Guid</th><th>Source IP</th>
+  <th class="temp">Temp</th><th class="created_at">Measured At</th><th>Location</th><th>Source IP</th>
       <% if readings_count == 1 { %>
         <th>Delete</th>
       <% } %>
   </tr>
   </thead>
   <tbody>
-  <% var temp_class string
-  var temp int %>
+  <%
+  var temp_class string
+  var temp int
+  node_guid_to_name := make(map[string]string)
+  var source_name string
+  %>
   <% for _, reading := range readings { %>
       <%
+        // Get/Cache node_name
+        if name_from_cache, ok := node_guid_to_name[reading.SourceGuid]; ok {
+          source_name = name_from_cache // pull from cache
+          //fmt.Println("Name from cache", source_name)
+        } else { // pull from db
+          node, err := getNodeByGuid(reading.SourceGuid)
+          if err != nil {
+            source_name = reading.SourceGuid
+            fmt.Println("Name from Source Guid", source_name)
+          } else {
+            source_name = node.Name
+            fmt.Println("Name from db", source_name)
+
+            node_guid_to_name[reading.SourceGuid] = source_name // cache it
+          }
+        }
+
         temp = reading.Temp /1000
         switch {
         case temp > 64:
@@ -120,8 +141,8 @@
           temp_class = "temp_good"
         }
       %>
-      <tr>
 
+      <tr>
       <% if reading.Temp == -255 { %>
        <td>N/A</td>
       <% } else { %>
@@ -129,8 +150,7 @@
       <% } %>
 
       <td class="created_at"><%= reading.MeasurementTimestamp.Format("15:04:05 Mon Jan _2") %></td>
-      <td><%= short_sha(reading.Guid) %></td>
-      <td><%= short_sha(reading.SourceGuid) %></td>
+      <td><%= source_name %></td>
       <td><%= reading.IPs %></td>
       <% if readings_count == 1 { %>
       <% id_str := strconv.FormatInt(reading.Id, 10) %>
