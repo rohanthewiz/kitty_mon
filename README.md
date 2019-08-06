@@ -128,6 +128,7 @@ That's okay, the Odroid C1/C2 do!
 - Summarization, graphs, dashboard
 - SMS Alerts
 - Token based auth webserver mode
+- Allow instructions for the client (example: reboot, delete n readings)
 
 ### TIPS
 - There is a great article on ego at http://blog.gopheracademy.com/advent-2014/ego/

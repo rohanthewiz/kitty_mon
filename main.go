@@ -2,9 +2,9 @@ package main
 
 import (
 	"fmt"
-	"os"
 	"github.com/jinzhu/gorm"
 	_ "github.com/mattn/go-sqlite3"
+	"os"
 	"time"
 )
 
@@ -36,7 +36,9 @@ func migrate() {
 }
 
 func ensureDBSig() {
-	if LocalNode.Id > 0 && len(LocalNode.Token) == 40 { return /* all is good */ }
+	if LocalNode.Id > 0 && len(LocalNode.Token) == 40 {
+		return /* all is good */
+	}
 	var node Node
 	if db.Where("is_local = 1").First(&node); node.Id < 1 { // create the signature
 		db.Create(&Node{Guid: random_sha1(), Token: random_sha1(), IsLocal: 1})
@@ -44,7 +46,7 @@ func ensureDBSig() {
 			pl("Local signature created")
 		}
 	} else {
-			pl("Local db signature already exists")
+		pl("Local db signature already exists")
 	}
 }
 
@@ -57,11 +59,13 @@ func main() {
 	}
 
 	//Do we need to migrate?
-	if ! db.HasTable(&Node{}) || ! db.HasTable(&Reading{}) { migrate() }
+	if !db.HasTable(&Node{}) || !db.HasTable(&Reading{}) {
+		migrate()
+	}
 
 	if opts.V {
 		fpl(app_name, version)
-		fpl(cat_temp())
+		fpl(catTemp())
 		fpl("Local IPs:", IPs(false))
 		return
 	}
@@ -91,7 +95,10 @@ func main() {
 	// The format of the generated token is: server_id-auth_token_for_the_client
 	if opts.GetNodeToken != "" {
 		pt, err := getNodeToken(opts.GetNodeToken)
-		if err != nil {fpl("Error retrieving token"); return}
+		if err != nil {
+			fpl("Error retrieving token")
+			return
+		}
 		fpf("Node token is: %s-%s\nYou will now need to run the client with \n'kitty_mon -save_node_token the_token'\n",
 			whoAmI(), pt)
 		return
@@ -118,7 +125,7 @@ func main() {
 	// CORE PROCESSING
 
 	if opts.SynchClient != "" {
-		go poll_temp() // save temp, whether real or bogus to the db
+		go pollTemp() // save temp, whether real or bogus to the db
 
 		lpl("I will periodically send data to server...")
 		for {
@@ -133,7 +140,7 @@ func main() {
 			synch_client(opts.SynchClient, opts.ServerSecret)
 		}
 
-	} else {  // Become server
+	} else { // Become server
 		go webserver(opts.Port)
 		synch_server()
 	}

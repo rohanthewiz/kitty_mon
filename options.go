@@ -7,33 +7,33 @@ import (
 )
 
 type Opts struct {
-	Q string
-	Port string
-	SynchPort string
-	Admin string
-	Db string
-	DbPath string
-	Exp string
-	Imp string
-	SynchClient string
-	GetNodeToken string
-	SaveNodeToken string
-	ServerSecret string
-	Env string
-	NodeName string
-	L int
-	Ql bool
-	V bool
-	WhoAmI bool
-	Del bool
-	Svr bool
+	Q               string
+	Port            string
+	SynchPort       string
+	Admin           string
+	Db              string
+	DbPath          string
+	Exp             string
+	Imp             string
+	SynchClient     string
+	GetNodeToken    string
+	SaveNodeToken   string
+	ServerSecret    string
+	Env             string
+	NodeName        string
+	L               int
+	Ql              bool
+	V               bool
+	WhoAmI          bool
+	Del             bool
+	Svr             bool
 	GetServerSecret bool
-	SynchServer bool
-	SetupDb bool
-	Sep string
-	Verbose bool
-	Debug bool
-	Bogus bool
+	SynchServer     bool
+	SetupDb         bool
+	Sep             string
+	Verbose         bool
+	Debug           bool
+	Bogus           bool
 }
 
 //Setup commandline options and other configuration for Go Notes
@@ -55,7 +55,7 @@ func NewOpts() *Opts {
 	envPtr := flag.String("env", "dev", "App Environment (dev|prod)")
 	nodeNamePtr := flag.String("node_name", "", "Upsert node name on server")
 
-	lPtr := flag.Int("l", -1, "Limit the number of notes returned")
+	lPtr := flag.Int("l", 24, "Limit the number of readings returned")
 	qlPtr := flag.Bool("ql", false, "Query for the last note updated")
 	vPtr := flag.Bool("v", false, "Show version")
 	whoamiPtr := flag.Bool("whoami", false, "Show Client GUID")
@@ -64,8 +64,8 @@ func NewOpts() *Opts {
 	svrPtr := flag.Bool("svr", false, "Web server mode")
 	getServerSecretPtr := flag.Bool("get_server_secret", false, "Show Server Secret")
 	synchServerPtr := flag.Bool("synch_server", false, "Synch server mode")
-	verbosePtr := flag.Bool("verbose", true, "verbose mode") // Todo - turn off for production
-	debugPtr := flag.Bool("debug", true, "debug mode") // Todo - turn off for production
+	verbosePtr := flag.Bool("verbose", true, "verbose mode")                   // Todo - turn off for production
+	debugPtr := flag.Bool("debug", true, "debug mode")                         // Todo - turn off for production
 	bogusPtr := flag.Bool("bogus", false, "generate bogus data in production") // Todo - turn off for production
 
 	flag.Parse()

@@ -1,12 +1,13 @@
 package main
+
 import (
-	"time"
+	"os/exec"
 	"strconv"
 	"strings"
-	"os/exec"
+	"time"
 )
 
-func poll_temp() {
+func pollTemp() {
 	var reading Reading
 	for {
 		var wait time.Duration
@@ -17,34 +18,35 @@ func poll_temp() {
 		}
 		time.Sleep(wait)
 
-		//Temperature
+		// Temperature
 		if opts.Bogus {
 			reading = bogusReading()
 		} else {
 			reading = Reading{
-				Guid: random_sha1(),
-				SourceGuid: whoAmI(),
-				IPs: IPs(true),
-				Temp: cat_temp(),
+				Guid:                 random_sha1(),
+				SourceGuid:           whoAmI(),
+				IPs:                  IPs(true),
+				Temp:                 catTemp(),
 				MeasurementTimestamp: time.Now(),
-				Sent: 0,
+				Sent:                 0,
 			}
 		}
 		db.Save(&reading)
+		// Cleanup
+		delOlderThanNDays(7) // TODO add config for this
 	}
 }
 
-func cat_temp() int {
+func catTemp() int {
 	cmdArgs := []string{"/sys/class/thermal/thermal_zone0/temp"}
-	byte_temp, err := exec.Command("cat", cmdArgs...).Output()
+	byteTemps, err := exec.Command("cat", cmdArgs...).Output()
 	if err != nil {
 		lpl("Error acquiring temperature.")
 		return -255
 	}
-	str_temp := strings.Trim(string(byte_temp), " \n\t") // clean up whitespace
-	//lpl("\"",str_temp,"\"")
+	strTemp := strings.Trim(string(byteTemps), " \n\t") // clean up whitespace
 	var temp int
-	temp, err = strconv.Atoi(str_temp)
+	temp, err = strconv.Atoi(strTemp)
 	if err != nil {
 		lpl("Error converting temperature.")
 		return -255

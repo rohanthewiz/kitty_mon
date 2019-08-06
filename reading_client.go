@@ -1,13 +1,13 @@
 package main
 
-import(
-	"net"
+import (
 	"encoding/gob"
+	"net"
 	"strconv"
 )
 
 func synch_client(host string, server_secret string) {
-	conn, err := net.Dial("tcp", host + ":" + opts.SynchPort)
+	conn, err := net.Dial("tcp", host+":"+opts.SynchPort)
 	if err != nil {
 		lpl("Error connecting to server ", err)
 		return
@@ -29,7 +29,7 @@ func synch_client(host string, server_secret string) {
 	})
 	rcxMsg(dec, &msg) // Decode the response
 	if msg.Type == "WhoIAm" {
-		guid := msg.Param  // retrieve the server's guid
+		guid := msg.Param // retrieve the server's guid
 		pl("The server's guid is", short_sha(guid))
 		if len(guid) != 40 {
 			fpl("The server's id is invalid. Run the server once with the -setup_db option")
@@ -38,12 +38,15 @@ func synch_client(host string, server_secret string) {
 		// Is there an auth token for us?
 		if len(msg.Param2) == 40 {
 			setNodeToken(guid, msg.Param2) // make sure to save new auth
-									// i.e. Given a node (server) with id guid, our auth token on that server is msg.Param2
+			// i.e. Given a node (server) with id guid, our auth token on that server is msg.Param2
 		}
 		// Obtain the node object which represents the server
 		node, err := getNodeByGuid(guid)
-		if err != nil { fpl("Error retrieving node object"); return }
-		msg.Param2 = ""  // clear for next msg
+		if err != nil {
+			fpl("Error retrieving node object")
+			return
+		}
+		msg.Param2 = "" // clear for next msg
 
 		// Auth
 		msg.Type = "AuthMe"
@@ -51,7 +54,7 @@ func synch_client(host string, server_secret string) {
 
 		if opts.NodeName != "" {
 			node.Name = opts.NodeName // The server will know this node as this name
-			db.Save(&node) // Save it locally
+			db.Save(&node)            // Save it locally
 			msg.Param2 = opts.NodeName
 		}
 		sendMsg(enc, msg)
@@ -72,8 +75,8 @@ func synch_client(host string, server_secret string) {
 				msg.Type = "Reading"
 				msg.Param = ""
 
-				for _, reading := range (readings) {
-						reading.SourceGuid = whoAmI()
+				for _, reading := range readings {
+					reading.SourceGuid = whoAmI()
 					msg.Reading = reading
 					sendMsg(enc, msg)
 					// Let's go ahead and delete here
@@ -84,11 +87,11 @@ func synch_client(host string, server_secret string) {
 		}
 
 	} else {
-			fpl("Node does not respond to request for database id")
-			fpl("Make sure both server and client databases have been properly setup(migrated) with the -setup_db option")
-			fpl("or make sure node version is >= 0.9")
-			return
-    }
+		fpl("Node does not respond to request for database id")
+		fpl("Make sure both server and client databases have been properly setup(migrated) with the -setup_db option")
+		fpl("or make sure node version is >= 0.9")
+		return
+	}
 
 	lpl("Synch Operation complete")
 }
@@ -96,9 +99,9 @@ func synch_client(host string, server_secret string) {
 func retrieveUnsentReadings() []Reading {
 	var readings []Reading
 	if opts.Bogus == false {
-		db.Where("sent = ?", 0).Find(&readings)
+		db.Where("sent = ?", 0).Order("created_at desc").Limit(opts.L).Find(&readings)
 	} else {
-		// Sent some bogus readings for development
+		// Send some bogus readings for development
 		for i := 0; i < 3; i++ {
 			readings = append(readings, bogusReading())
 		}
