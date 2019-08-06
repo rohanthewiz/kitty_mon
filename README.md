@@ -18,27 +18,12 @@ Kitty Monitor is a system for monitoring the temperature of a remote location.
 Get Go for your operating system: http://golang.org/dl/ and install. The installation should set the GOROOT environment variable to the Golang toplevel folder.
 If you installed Go to the folder ```~/apps/``` then your GOROOT env. var should contain: ```~/apps/go```.
 
-### Go Workspace Setup
-The environment variable *GOPATH* must point to your Go project workspace. Google 'environment variable set Windows', for example, to do that for your operating system.
-Your can check your current GOPATH and GOROOT environment variables by running the following command
-```
-go env
-```
-
-Your Go projects should live under a folder path of this format:
-```
-GOPATH/src/yourdomain.com/your_project
-```
-
 ## Getting and Building KittyMonitor
 Note that both the server and client is provided from the same binary.
-(You may need Mercurial installed)
-
 ```
-sudo apt-get install mercurial # may not be necessary
-# Get the KittyMonitor archive
-go get github.com/rohanthewiz/kitty_mon
-cd $GOPATH/src/github.com/rohanthewiz/kitty_mon
+# cd to the directory of your choice then clone the repo:
+git clone https://github.com/rohanthewiz/kitty_mon.git
+cd kitty_mon
 go build # this will produce the executable 'kitty_mon' in the current directory
 ```
 You will require the ego package to make changes to the template files
@@ -57,8 +42,8 @@ $GOPATH/bin/ego -package main  # compile the template before doing 'go build'
 ## Using KittyMonitor
 KittyMonitor launches a goroutine that polls system board temperature of the Odroid.
 The main thread continues in an infinite loop to:
- 1. poll temperature every 2mins
- 2. connect to the server every 4mins and send any unsent readings.
+ 1. poll temperature every 2 mins
+ 2. connect to the server every 4 mins and send any unsent readings.
  
 Usage info: `kitty_mon -h` 
 
