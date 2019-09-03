@@ -40,7 +40,7 @@ func synch_client(host string, server_secret string) {
 			setNodeToken(guid, msg.Param2) // make sure to save new auth
 			// i.e. Given a node (server) with id guid, our auth token on that server is msg.Param2
 		}
-		// Obtain the node object which represents the server
+		// Get the server's node info from our DB
 		node, err := getNodeByGuid(guid)
 		if err != nil {
 			fpl("Error retrieving node object")
@@ -50,7 +50,7 @@ func synch_client(host string, server_secret string) {
 
 		// Auth
 		msg.Type = "AuthMe"
-		msg.Param = node.Token // This is our auth token for this node (server). It is set by one of two access granting mechanisms
+		msg.Param = node.Token // This is our token for communication with this node (server). It is set by one of two access granting mechanisms
 
 		if opts.NodeName != "" {
 			node.Name = opts.NodeName // The server will know this node as this name
@@ -89,7 +89,7 @@ func synch_client(host string, server_secret string) {
 	} else {
 		fpl("Node does not respond to request for database id")
 		fpl("Make sure both server and client databases have been properly setup(migrated) with the -setup_db option")
-		fpl("or make sure node version is >= 0.9")
+		fpl("or make sure kitty_mon version is >= 0.9")
 		return
 	}
 

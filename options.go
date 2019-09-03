@@ -55,7 +55,7 @@ func NewOpts() *Opts {
 	envPtr := flag.String("env", "dev", "App Environment (dev|prod)")
 	nodeNamePtr := flag.String("node_name", "", "Upsert node name on server")
 
-	lPtr := flag.Int("l", 24, "Limit the number of readings returned")
+	lPtr := flag.Int("l", 64, "Limit the number of readings returned")
 	qlPtr := flag.Bool("ql", false, "Query for the last note updated")
 	vPtr := flag.Bool("v", false, "Show version")
 	whoamiPtr := flag.Bool("whoami", false, "Show Client GUID")

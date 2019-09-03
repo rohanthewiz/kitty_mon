@@ -14,9 +14,22 @@ import (
 // 	}
 // }
 
+const readingsLimit = 120
+
 func getRecentReadings() ([]Reading, error) {
 	var readings []Reading
 	q := db.Order("created_at desc").Limit(opts.L).Find(&readings)
+	return readings, q.Error
+}
+
+func queryReadings(limit int) ([]Reading, error) {
+	var readings []Reading
+
+	if limit == -1 || limit == 0 || limit > 120 {
+		limit = readingsLimit
+	}
+
+	q := db.Order("created_at desc").Limit(limit).Find(&readings)
 	return readings, q.Error
 }
 

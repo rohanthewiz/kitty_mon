@@ -59,6 +59,22 @@ func QueryAsJson(w http.ResponseWriter, _ *http.Request, p httprouter.Params) {
 	w.Write(j_readings)
 }
 
+func APIQuery(w http.ResponseWriter, _ *http.Request, p httprouter.Params) {
+	resetOptions()
+	limit, err := strconv.Atoi(p.ByName("limit"))
+	if err != nil {
+		limit = 0
+	}
+	readings, err := queryReadings(limit)
+	if err != nil {
+		lpl(err)
+		return
+	}
+	j_readings, _ := json.Marshal(readings)
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(j_readings)
+}
+
 //func QueryIdAsJson(w http.ResponseWriter, _ *http.Request, p httprouter.Params) {
 //	resetOptions()
 //	id, err := strconv.ParseInt(p.ByName("id"), 10, 64)
