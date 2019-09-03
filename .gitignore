@@ -4,6 +4,9 @@
 *.a
 kitty_mon.exe
 kitty_mon
+app
+
+.cache/
 test/*
 testdb/*
 stash/*

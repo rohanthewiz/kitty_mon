@@ -15,18 +15,17 @@ Kitty Monitor is a system for monitoring the temperature of a remote location.
 ## Getting Setup
 
 ### Download
-Get Go for your operating system: http://golang.org/dl/ and install. The installation should set the GOROOT environment variable to the Golang toplevel folder.
-If you installed Go to the folder ```~/apps/``` then your GOROOT env. var should contain: ```~/apps/go```.
+Get Go for your operating system: http://golang.org/dl/ and install.
 
 ## Getting and Building KittyMonitor
-Note that both the server and client is provided from the same binary.
 ```
 # cd to the directory of your choice then clone the repo:
 git clone https://github.com/rohanthewiz/kitty_mon.git
 cd kitty_mon
-go build # this will produce the executable 'kitty_mon' in the current directory
 ```
-You will require the ego package to make changes to the template files
+
+### If Changes required to the Template
+You will need the ego package to make changes to the template files
 Install it with
 
 ```
@@ -39,11 +38,24 @@ For example if you updated *query.ego* you will need to run
 $GOPATH/bin/ego -package main  # compile the template before doing 'go build'
 ```
 
+### COMPILE with Docker
+- Build the compiler docker image: `docker build -f Dockerfile.compile -t go:compiler .`
+- Use a container to compile: `docker run --rm -v "$HOME/<path/to/kitty_mon/project>:root" -w /root -e GOOS=linux -e GOARCH=amd64 -e CGO_ENABLED=1 go:compiler go build -v -ldflags '-w -extldflags "-static"' -o app .`
+
+### Standard compile
+```
+# You need a C compiler that can build sqlite.
+CGO_ENABLED=1 go build # this will produce the executable 'kitty_mon' in the current directory
+```
+
+Copy the `app` executable where needed. Example: `scp app user@myserver.net:bin/kitty_mon`
+
 ## Using KittyMonitor
+Note that both the server and client operates from the same binary.
 KittyMonitor launches a goroutine that polls system board temperature of the Odroid.
 The main thread continues in an infinite loop to:
  1. poll temperature every 2 mins
- 2. connect to the server every 4 mins and send any unsent readings.
+ 2. connect to the server every 4 mins and send any unsent readings (up to a limit).
  
 Usage info: `kitty_mon -h` 
 
