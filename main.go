@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/jinzhu/gorm"
 	_ "github.com/mattn/go-sqlite3"
+	"kitty_mon/sms"
 	"os"
 	"time"
 )
@@ -141,6 +142,12 @@ func main() {
 		}
 
 	} else { // Become server
+		// Testing out sending a text
+		err := sms.NexmoSend("KittyMon web client starting " + fmt.Sprintf("%s", time.Now()))
+		if err != nil {
+			fmt.Println(err)
+		}
+
 		go webserver(opts.Port)
 		synch_server()
 	}

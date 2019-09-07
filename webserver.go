@@ -70,9 +70,58 @@ func APIQuery(w http.ResponseWriter, _ *http.Request, p httprouter.Params) {
 		lpl(err)
 		return
 	}
-	j_readings, _ := json.Marshal(readings)
+
+	readingsWithNames := readingsPopulateNodeName(readings)
+	jReadings, _ := json.Marshal(readingsWithNames)
+
 	w.Header().Set("Content-Type", "application/json")
-	w.Write(j_readings)
+	w.Write(jReadings)
+}
+
+func readingStatus(reading Reading) (status string) {
+	temp := reading.Temp / 1000
+	switch {
+	case temp > 69:
+		status = "fail"
+	case temp > 65:
+		status = "hot"
+	case temp > 60:
+		status = "warm"
+	default:
+		status = "good"
+	}
+	return
+}
+
+func readingsPopulateNodeName(readings []Reading) (readingsWithNames []ReadingEnriched) {
+	guidToName := make(map[string]string, 4)
+
+	for _, r := range readings {
+		rwn := ReadingEnriched{Status: readingStatus(r)}
+		rwn.SourceGuid = r.SourceGuid
+		rwn.Temp = r.Temp
+		rwn.Guid = r.Guid
+		rwn.Id = r.Id
+		rwn.CreatedAt = r.CreatedAt
+		rwn.IPs = r.IPs
+		rwn.MeasurementTimestamp = r.MeasurementTimestamp
+
+		if name, ok := guidToName[r.SourceGuid]; ok { // Is it in the cache?
+			rwn.Name = name
+		} else {
+			node, err := getNodeByGuid(r.SourceGuid)
+			if err != nil {
+				lpl(err)
+			} else {
+				rwn.Name = node.Name
+				guidToName[r.SourceGuid] = node.Name // also load into cache
+			}
+		}
+
+		readingsWithNames = append(readingsWithNames, rwn)
+	}
+
+	return
 }
 
 //func QueryIdAsJson(w http.ResponseWriter, _ *http.Request, p httprouter.Params) {

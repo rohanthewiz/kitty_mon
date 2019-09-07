@@ -130,16 +130,7 @@
         }
 
         temp = reading.Temp /1000
-        switch {
-        case temp > 64:
-          temp_class = "temp_fail"
-        case temp > 62:
-          temp_class = "temp_hot"
-        case temp > 59:
-          temp_class = "temp_warm"
-        default:
-          temp_class = "temp_good"
-        }
+        temp_class = "temp_" + readingStatus(reading)
       %>
 
       <tr>
