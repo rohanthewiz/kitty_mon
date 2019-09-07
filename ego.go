@@ -51,7 +51,7 @@ func RenderQuery(w io.Writer, readings []Reading) error {
 		// Get/Cache node_name
 		if name_from_cache, ok := node_guid_to_name[reading.SourceGuid]; ok {
 			source_name = name_from_cache // pull from cache
-			fmt.Println("Name from cache", source_name)
+			//fmt.Println("Name from cache", source_name)
 		} else { // pull from db
 			node, err := getNodeByGuid(reading.SourceGuid)
 			if err != nil {
