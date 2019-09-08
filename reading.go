@@ -16,9 +16,10 @@ func init() {
 	var err error
 	criticalTemp, err = strconv.Atoi(os.Getenv("CRITICAL_TEMP"))
 	if err != nil || criticalTemp == 0 {
-		panic("CRITICAL_TEMP env var is not a valid positive integer - e.g. 70")
+		//panic("CRITICAL_TEMP env var is not a valid positive integer - e.g. 70")
+	} else {
+		criticalTemp *= 1000
 	}
-	criticalTemp *= 1000
 }
 
 // This represents the payload sent to the server
