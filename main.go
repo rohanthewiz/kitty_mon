@@ -2,7 +2,9 @@ package main
 
 import (
 	"fmt"
+	"kitty_mon/snapshots"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/jinzhu/gorm"
@@ -125,21 +127,33 @@ func main() {
 
 	// CORE PROCESSING
 
+	snapshotsStopChan := make(chan bool)
+	snapshotsDoneChan := make(chan bool)
+
 	if opts.SynchClient != "" {
+		// TODO - graceful shutdown of pollTemp()
+		// TODO - Also handle CTRL-C
 		go pollTemp() // save temp, whether real or bogus to the db
+
+		go snapshots.SendSnapshots(snapshotsStopChan, snapshotsDoneChan)
 
 		lpl("I will periodically send data to server...")
 		for {
-			var wait time.Duration
+			if strings.ToLower(os.Getenv("KM_SHUTDOWN")) == "true" {
+				break
+			}
+
+			wait := 4 * time.Minute
 			if opts.Env == "dev" {
-				wait = 12 * time.Second
-			} else {
-				wait = 4 * time.Minute
+				wait = 8 * time.Second
 			}
 			time.Sleep(wait)
 
 			synch_client(opts.SynchClient, opts.ServerSecret)
 		}
+
+		close(snapshotsStopChan)
+		<-snapshotsDoneChan // give snapshots a chance to wrap up
 
 	} else { // Become server
 		// Testing out sending a text

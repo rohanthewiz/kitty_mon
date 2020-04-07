@@ -51,7 +51,7 @@ CGO_ENABLED=1 go build # this will produce the executable 'kitty_mon' in the cur
 Copy the `app` executable where needed. Example: `scp app user@myserver.net:bin/kitty_mon`
 
 ## Using KittyMonitor
-Note that both the server and client operates from the same binary.
+Note that both the server and client operate from the same binary.
 KittyMonitor launches a goroutine that polls system board temperature of the Odroid.
 The main thread continues in an infinite loop to:
  1. poll temperature every 2 mins
