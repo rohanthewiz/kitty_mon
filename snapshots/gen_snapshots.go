@@ -6,18 +6,24 @@ import (
 	"github.com/bramvdbogaerde/go-scp/auth"
 	"golang.org/x/crypto/ssh"
 	"os"
+	"strconv"
 	"time"
 )
 
 func SendSnapshots(stopChan <-chan bool, doneChan chan<- bool) {
 	for {
+		delay, err := strconv.Atoi(os.Getenv("SNAPSHOT_DELAY"))
+		if err != nil || delay < 5 {
+			delay = 600
+		}
 		select {
 		case _, ok := <-stopChan:
 			if !ok { // channel is now closed and empty
+				// any cleanup would go here
 				doneChan <- true
 				return
 			}
-		case <-time.After(6 * time.Second): // TODO config for this time
+		case <-time.After(time.Duration(delay) * time.Second):
 			fmt.Println("Taking a snapshot")
 			takeSnapShot()
 		}
@@ -30,6 +36,8 @@ func takeSnapShot() {
 	const scpServerAndPort = "myServer:<int port>"
 	const serverDestPath = "/home/app/xfr/"
 	const serverDestFile = "test.txt"
+
+	// TODO - Exec snapshot command
 
 	clientCfg, _ := auth.PrivateKey(sshUser, privKey, ssh.InsecureIgnoreHostKey())
 	client := scp.NewClient(scpServerAndPort, &clientCfg)
