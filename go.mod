@@ -8,5 +8,6 @@ require (
 	github.com/julienschmidt/httprouter v1.2.0
 	github.com/lib/pq v1.2.0 // indirect
 	github.com/mattn/go-sqlite3 v1.10.0
+	github.com/rohanthewiz/serr v0.4.2
 	golang.org/x/crypto v0.0.0-20200406173513-056763e48d71
 )

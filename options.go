@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"kitty_mon/config"
 	"os"
 	"strings"
 )
@@ -97,6 +98,8 @@ func NewOpts() *Opts {
 	opts.Debug = *debugPtr
 	opts.Bogus = *bogusPtr
 
+	_ = config.ReadEnvFile()
+
 	separator := "/"
 	if strings.Contains(strings.ToUpper(os.Getenv("OS")), "WINDOWS") {
 		separator = "\\"
@@ -104,8 +107,10 @@ func NewOpts() *Opts {
 	opts.Sep = separator
 
 	db_file := "kitty_mon.sqlite"
+
 	var db_folder string
 	var db_full_path string
+
 	if len(*dbPtr) == 0 {
 		if len(os.Getenv("HOME")) > 0 {
 			db_folder = os.Getenv("HOME")
