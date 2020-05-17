@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-func SendSnapshots(stopChan <-chan bool, doneChan chan<- bool) {
+func RunSnapshotLoop(stopChan <-chan bool, doneChan chan<- bool) {
 	for {
 		delay, err := strconv.Atoi(os.Getenv("SNAPSHOT_DELAY"))
 		if err != nil || delay < 5 {

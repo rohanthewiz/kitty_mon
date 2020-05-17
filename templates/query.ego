@@ -130,7 +130,7 @@
         }
 
         temp = reading.Temp /1000
-        temp_class = "temp_" + readingStatus(reading)
+        temp_class = "temp_" + reading.ReadingStatus(reading)
       %>
 
       <tr>

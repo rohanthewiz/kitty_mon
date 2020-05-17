@@ -1,13 +1,21 @@
-package main
+package config
 
 import (
 	"flag"
-	"kitty_mon/config"
 	"os"
 	"strings"
+	"time"
 )
 
-type Opts struct {
+const App_name = "Kitty Monitor"
+const Version string = "0.1.9"
+
+var ReadingsProdPollRate = 4 * time.Minute
+var ReadingsDevPollRate = 8 * time.Second
+
+var Opts *Option //Cmdline options and flags
+
+type Option struct {
 	Q               string
 	Port            string
 	SynchPort       string
@@ -38,8 +46,8 @@ type Opts struct {
 }
 
 //Setup commandline options and other configuration for Go Notes
-func NewOpts() *Opts {
-	opts := new(Opts)
+func NewOpts() *Option {
+	opts := new(Option)
 
 	// flag.{String|Bool|Int|Float...}( the_option, default_value, description )
 	qPtr := flag.String("q", "", "Query for notes based on a LIKE search. \"all\" will return all notes")
@@ -98,7 +106,7 @@ func NewOpts() *Opts {
 	opts.Debug = *debugPtr
 	opts.Bogus = *bogusPtr
 
-	_ = config.ReadEnvFile()
+	_ = ReadEnvFile() // Pick up some configs from env vars
 
 	separator := "/"
 	if strings.Contains(strings.ToUpper(os.Getenv("OS")), "WINDOWS") {

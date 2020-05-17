@@ -2,8 +2,18 @@ package main
 
 import (
 	"fmt"
+	"kitty_mon/auth"
+	"kitty_mon/config"
+	"kitty_mon/km_db"
+	"kitty_mon/kmclient"
+	"kitty_mon/kmserver"
+	"kitty_mon/node"
+	"kitty_mon/reading"
 	"kitty_mon/snapshots"
+	"kitty_mon/util"
+	"kitty_mon/web"
 	"os"
+	"strconv"
 	"strings"
 	"time"
 
@@ -11,117 +21,80 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 )
 
-const app_name = "Kitty Monitor"
-const version string = "0.1.9"
-
-var opts *Opts //Cmdline options and flags
-
-// Init db
-var db gorm.DB
 var err error
 
-func migrate() {
-	// Create or update the table structure as needed
-	pl("Migrating the DB...")
-	db.AutoMigrate(&Node{})
-	db.AutoMigrate(&Reading{})
-	//According to GORM: Feel free to change your struct, AutoMigrate will keep your database up-to-date.
-	// Fyi, AutoMigrate will only *add new columns*, it won't update column's type or delete unused columns for safety
-	// If the table is not existing, AutoMigrate will create the table automatically.
-	db.Model(&Reading{}).AddUniqueIndex("idx_reading_guid", "guid")
-	db.Model(&Reading{}).AddIndex("idx_reading_source_guid", "source_guid")
-	db.Model(&Reading{}).AddIndex("idx_reading_created_at", "created_at")
-	db.Model(&Node{}).AddUniqueIndex("idx_node_guid", "guid")
-	// This would disallow blanks //db.Model(&Node{}).AddUniqueIndex("idx_node_name", "name")
-
-	pl("Migration complete")
-	ensureDBSig() // Initialize local with a SHA1 signature if it doesn't already have one
-}
-
-func ensureDBSig() {
-	if LocalNode.Id > 0 && len(LocalNode.Token) == 40 {
-		return /* all is good */
-	}
-	var node Node
-	if db.Where("is_local = 1").First(&node); node.Id < 1 { // create the signature
-		db.Create(&Node{Guid: random_sha1(), Token: random_sha1(), IsLocal: 1})
-		if db.Where("is_local = 1").First(&node); node.Id > 0 && len(node.Token) == 40 { // was it saved?
-			pl("Local signature created")
-		}
-	} else {
-		pl("Local db signature already exists")
-	}
-}
-
 func main() {
-	opts = NewOpts()
-	db, err = gorm.Open("sqlite3", opts.DbPath)
+	config.Opts = config.NewOpts()
+	km_db.Db, err = gorm.Open("sqlite3", config.Opts.DbPath)
 	if err != nil {
-		lf("There was an error connecting to the DB.\nDBPath: " + opts.DbPath)
+		util.Lf("There was an error connecting to the DB.\nDBPath: " + config.Opts.DbPath)
 		os.Exit(2)
 	}
 
 	//Do we need to migrate?
-	if !db.HasTable(&Node{}) || !db.HasTable(&Reading{}) {
-		migrate()
+	if !km_db.Db.HasTable(&node.Node{}) || !km_db.Db.HasTable(&reading.Reading{}) {
+		km_db.Migrate(&reading.Reading{}, &node.Node{})
+		auth.EnsureDBSig() // Initialize local with a SHA1 signature if it doesn't already have one
 	}
 
-	if opts.V {
-		fpl(app_name, version)
-		fpl(catTemp())
-		fpl("Local IPs:", IPs(false))
+	if config.Opts.V {
+		util.Fpl(config.App_name, config.Version)
+		util.Fpl(reading.CatTemp())
+		util.Fpl("Local IPs:", util.IPs(false))
 		return
 	}
 
-	db.LogMode(opts.Debug) // Set debug mode for Gorm db
+	km_db.Db.LogMode(config.Opts.Debug) // Set debug mode for Gorm db
 
-	if opts.Admin == "delete_tables" {
+	if config.Opts.Admin == "delete_tables" {
 		fmt.Println("Are you sure you want to delete all data? (N/y)")
 		var input string
 		fmt.Scanln(&input) // Get keyboard input
-		pd("input", input)
+		util.Pd("input", input)
 		if input == "y" || input == "Y" {
-			db.DropTableIfExists(&Reading{})
-			db.DropTableIfExists(&Node{})
-			pl("Readings tables deleted")
+			km_db.Db.DropTableIfExists(&reading.Reading{})
+			km_db.Db.DropTableIfExists(&node.Node{})
+			util.Pl("Readings tables deleted")
 		}
 		return
 	}
 
 	// Client - Return our db signature
-	if opts.WhoAmI {
-		fpl(whoAmI())
+	if config.Opts.WhoAmI {
+		util.Fpl(auth.WhoAmI())
 		return
 	}
 
 	// Server - Generate an auth token for a client
 	// The format of the generated token is: server_id-auth_token_for_the_client
-	if opts.GetNodeToken != "" {
-		pt, err := getNodeToken(opts.GetNodeToken)
+	if config.Opts.GetNodeToken != "" {
+		pt, err := node.GetNodeToken(config.Opts.GetNodeToken)
 		if err != nil {
-			fpl("Error retrieving token")
+			util.Fpl("Error retrieving token")
 			return
 		}
-		fpf("Node token is: %s-%s\nYou will now need to run the client with \n'kitty_mon -save_node_token the_token'\n",
-			whoAmI(), pt)
+		util.Fpf("Node token is: %s-%s\nYou will now need to run the client with \n'kitty_mon -save_node_token the_token'\n",
+			auth.WhoAmI(), pt)
 		return
 	}
 
 	// Client - Save a token generated for us by a server
-	if opts.SaveNodeToken != "" {
-		saveNodeToken(opts.SaveNodeToken)
+	if config.Opts.SaveNodeToken != "" {
+		node.SaveNodeToken(config.Opts.SaveNodeToken)
 		return
 	}
 
 	// Server - Return the server's secret token
 	// This is a master key and will allow any client to auth
 	// We probably want to use the methods above instead
-	if opts.GetServerSecret {
-		fpl(get_server_secret())
+	if config.Opts.GetServerSecret {
+		util.Fpl(auth.GetServerSecret())
 		return
 	}
-	if opts.SetupDb { // Migrate the DB
-		migrate()
+
+	if config.Opts.SetupDb { // Migrate the DB
+		km_db.Migrate(&reading.Reading{}, &node.Node{})
+		auth.EnsureDBSig() // Initialize local with a SHA1 signature if it doesn't already have one
 		return
 	}
 
@@ -130,26 +103,36 @@ func main() {
 	snapshotsStopChan := make(chan bool)
 	snapshotsDoneChan := make(chan bool)
 
-	if opts.SynchClient != "" {
+	if config.Opts.SynchClient != "" {
 		// TODO - graceful shutdown of pollTemp()
 		// TODO - Also handle CTRL-C
-		go pollTemp() // save temp, whether real or bogus to the db
+		go reading.PollTemp() // save temp, whether real or bogus to local db
 
-		go snapshots.SendSnapshots(snapshotsStopChan, snapshotsDoneChan)
+		go snapshots.RunSnapshotLoop(snapshotsStopChan, snapshotsDoneChan)
 
-		lpl("I will periodically send data to server...")
+		wait := config.ReadingsProdPollRate
+		if config.Opts.Env == "dev" {
+			wait = config.ReadingsDevPollRate
+		}
+
+		util.Lpl("I will periodically send data to server...")
 		for {
+			// The app behavior can be dynamically changed via env vars
 			if strings.ToLower(os.Getenv("KM_SHUTDOWN")) == "true" {
 				break
 			}
-
-			wait := 4 * time.Minute
-			if opts.Env == "dev" {
-				wait = 8 * time.Second
+			if strRate := strings.ToLower(os.Getenv("KM_READINGS_POLLRATE")); strRate != "" {
+				rate, err := strconv.Atoi(strRate)
+				if err != nil {
+					util.Lpl("Error converting readings pollrate from env var KM_READINGS_POLLRATE: " + err.Error())
+				} else {
+					wait = time.Duration(rate) * time.Second
+				}
 			}
+
 			time.Sleep(wait)
 
-			synch_client(opts.SynchClient, opts.ServerSecret)
+			kmclient.Synch_client(config.Opts.SynchClient, config.Opts.ServerSecret)
 		}
 
 		close(snapshotsStopChan)
@@ -162,7 +145,7 @@ func main() {
 		// 	fmt.Println(err)
 		// }
 
-		go webserver(opts.Port)
-		synch_server()
+		go web.Webserver(config.Opts.Port)
+		kmserver.Synch_server()
 	}
 }

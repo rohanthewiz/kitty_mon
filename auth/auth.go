@@ -1,11 +1,15 @@
-package main
+package auth
 
-import(
+import (
 	"errors"
+	"kitty_mon/km_db"
+	"kitty_mon/node"
+	"kitty_mon/util"
 )
 
-const authFailMsg = "Authentication failure. Generate authorization token with -synch_auth\nThen store in node entry on client with -store_synch_auth"
-var LocalNode Node // cache the local node
+const AuthFailMsg = "Authentication failure. Generate authorization token with -synch_auth\nThen store in node entry on client with -store_synch_auth"
+
+var LocalNode node.Node // cache the local node
 
 // The low-down on auth.
 // Each node will have a Node table
@@ -16,37 +20,37 @@ var LocalNode Node // cache the local node
 //
 
 // Get local DB signature
-func whoAmI() string {
-	var node Node
+func WhoAmI() string {
+	var node node.Node
 	var err error
-	if node, err = get_local_node(); err != nil {
+	if node, err = GetLocalNode(); err != nil {
 		return ""
 	}
 	return node.Guid
 }
 
-func get_server_secret() string {
-	var node Node
+func GetServerSecret() string {
+	var node node.Node
 	var err error
-	if node, err = get_local_node(); err != nil {
+	if node, err = GetLocalNode(); err != nil {
 		return ""
 	}
 	return node.Token
 }
 
-func get_local_node() (Node, error) {
+func GetLocalNode() (node.Node, error) {
 	if LocalNode.Id > 0 { // it has been inited
 		return LocalNode, nil
 	}
-	var node Node
-	db.Where("is_local = 1").First(&node)
+	var node node.Node
+	km_db.Db.Where("is_local = 1").First(&node)
 	if node.Id < 1 { // no such node
-		ensureDBSig()
-		db.Where("is_local = 1").First(&node)
+		EnsureDBSig()
+		km_db.Db.Where("is_local = 1").First(&node)
 		if node.Id < 1 {
 			str := (`Could not locate or create local database signature.
 			Delete the local database, and try again`)
-			fpl(str)
+			util.Fpl(str)
 			return node, errors.New(str)
 		}
 	}

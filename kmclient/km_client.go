@@ -1,0 +1,117 @@
+package kmclient
+
+import (
+	"encoding/gob"
+	"kitty_mon/auth"
+	"kitty_mon/config"
+	"kitty_mon/km_db"
+	"kitty_mon/message"
+	"kitty_mon/node"
+	"kitty_mon/reading"
+	"kitty_mon/util"
+	"net"
+	"strconv"
+)
+
+func Synch_client(host string, server_secret string) {
+	conn, err := net.Dial("tcp", host+":"+config.Opts.SynchPort)
+	if err != nil {
+		util.Lpl("Error connecting to server ", err)
+		return
+	}
+	defer func() {
+		conn.Close()
+		if r := recover(); r != nil {
+			util.Lpl("Recovered in synch_client", r)
+		}
+	}()
+	msg := message.Message{} // init to empty struct
+	enc := gob.NewEncoder(conn)
+	dec := gob.NewDecoder(conn)
+	defer message.SendMsg(enc, message.Message{Type: "Hangup"})
+
+	// Send handshake - Client initiates
+	message.SendMsg(enc, message.Message{
+		Type: "WhoAreYou", Param: auth.WhoAmI(), Param2: server_secret,
+	})
+	message.RcxMsg(dec, &msg) // Decode the response
+	if msg.Type == "WhoIAm" {
+		guid := msg.Param // retrieve the server's guid
+		util.Pl("The server's guid is", util.Short_sha(guid))
+		if len(guid) != 40 {
+			util.Fpl("The server's id is invalid. Run the server once with the -setup_db option")
+			return
+		}
+		// Is there an auth token for us?
+		if len(msg.Param2) == 40 {
+			node.SetNodeToken(guid, msg.Param2) // make sure to save new auth
+			// i.e. Given a node (server) with id guid, our auth token on that server is msg.Param2
+		}
+		// Get the server's node info from our DB
+		node, err := node.GetNodeByGuid(guid)
+		if err != nil {
+			util.Fpl("Error retrieving node object")
+			return
+		}
+		msg.Param2 = "" // clear for next msg
+
+		// Auth
+		msg.Type = "AuthMe"
+		msg.Param = node.Token // This is our token for communication with this node (server). It is set by one of two access granting mechanisms
+
+		if config.Opts.NodeName != "" {
+			node.Name = config.Opts.NodeName // The server will know this node as this name
+			km_db.Db.Save(&node)             // Save it locally
+			msg.Param2 = config.Opts.NodeName
+		}
+		message.SendMsg(enc, msg)
+		message.RcxMsg(dec, &msg)
+		if msg.Param != "Authorized" {
+			util.Fpl("The server declined the authorization request")
+			return
+		}
+
+		// The Client will send one or more messages to the server
+		readings := RetrieveUnsentReadings()
+		util.Pf("%d unsent readings found\n", len(readings))
+		if len(readings) > 0 {
+			message.SendMsg(enc, message.Message{Type: "NumberOfReadings",
+				Param: strconv.Itoa(len(readings))})
+			message.RcxMsg(dec, &msg)
+			if msg.Type == "SendReadings" {
+				msg.Type = "Reading"
+				msg.Param = ""
+
+				for _, reading := range readings {
+					reading.SourceGuid = auth.WhoAmI()
+					msg.Reading = reading
+					message.SendMsg(enc, msg)
+					// Let's go ahead and delete here
+					//reading.Sent = 1
+					km_db.Db.Delete(&reading) //db.Save(&reading)
+				}
+			}
+		}
+
+	} else {
+		util.Fpl("Node does not respond to request for database id")
+		util.Fpl("Make sure both server and client databases have been properly setup(migrated) with the -setup_db option")
+		util.Fpl("or make sure kitty_mon version is >= 0.9")
+		return
+	}
+
+	util.Lpl("Synch Operation complete")
+}
+
+func RetrieveUnsentReadings() []reading.Reading {
+	var readings []reading.Reading
+	if config.Opts.Bogus == false {
+		km_db.Db.Where("sent = ?", 0).Order("created_at desc").Limit(config.Opts.L).Find(&readings)
+	} else {
+		// Send some bogus readings for development
+		for i := 0; i < 3; i++ {
+			readings = append(readings, reading.BogusReading())
+		}
+	}
+	return readings
+}

@@ -8,8 +8,9 @@ import (
 	"strings"
 )
 
+// TODO - Allow comments
 func ReadEnvFile() (err error) {
-	envf, err := os.Open("env.vars")
+	envf, err := os.Open("vars.env")
 	if err != nil {
 		return serr.Wrap(err, "Error opening env file")
 	}
@@ -18,7 +19,7 @@ func ReadEnvFile() (err error) {
 
 	for scnr.Scan() {
 		line := scnr.Text()
-		if line != "" {
+		if strings.TrimSpace(line) != "" {
 			arr := strings.SplitN(line, "=", 2)
 			if len(arr) == 2 {
 				key := strings.TrimSpace(arr[0])
