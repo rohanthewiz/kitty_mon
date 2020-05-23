@@ -1,12 +1,12 @@
 package main
 
 import (
-	"fmt"
 	"kitty_mon/auth"
 	"kitty_mon/config"
 	"kitty_mon/km_db"
 	"kitty_mon/kmclient"
 	"kitty_mon/kmserver"
+	"kitty_mon/loaders"
 	"kitty_mon/node"
 	"kitty_mon/reading"
 	"kitty_mon/snapshots"
@@ -17,47 +17,16 @@ import (
 	"strings"
 	"time"
 
-	"github.com/jinzhu/gorm"
 	_ "github.com/mattn/go-sqlite3"
 )
 
 var err error
 
 func main() {
-	config.Opts = config.NewOpts()
-	km_db.Db, err = gorm.Open("sqlite3", config.Opts.DbPath)
-	if err != nil {
-		util.Lf("There was an error connecting to the DB.\nDBPath: " + config.Opts.DbPath)
-		os.Exit(2)
-	}
+	loaders.ConfigLoader()
+	loaders.DBLoader()
 
-	//Do we need to migrate?
-	if !km_db.Db.HasTable(&node.Node{}) || !km_db.Db.HasTable(&reading.Reading{}) {
-		km_db.Migrate(&reading.Reading{}, &node.Node{})
-		auth.EnsureDBSig() // Initialize local with a SHA1 signature if it doesn't already have one
-	}
-
-	if config.Opts.V {
-		util.Fpl(config.App_name, config.Version)
-		util.Fpl(reading.CatTemp())
-		util.Fpl("Local IPs:", util.IPs(false))
-		return
-	}
-
-	km_db.Db.LogMode(config.Opts.Debug) // Set debug mode for Gorm db
-
-	if config.Opts.Admin == "delete_tables" {
-		fmt.Println("Are you sure you want to delete all data? (N/y)")
-		var input string
-		fmt.Scanln(&input) // Get keyboard input
-		util.Pd("input", input)
-		if input == "y" || input == "Y" {
-			km_db.Db.DropTableIfExists(&reading.Reading{})
-			km_db.Db.DropTableIfExists(&node.Node{})
-			util.Pl("Readings tables deleted")
-		}
-		return
-	}
+	// ----- UTILITY OPTIONS -----
 
 	// Client - Return our db signature
 	if config.Opts.WhoAmI {
@@ -105,7 +74,6 @@ func main() {
 
 	if config.Opts.SynchClient != "" {
 		// TODO - graceful shutdown of pollTemp()
-		// TODO - Also handle CTRL-C
 		go reading.PollTemp() // save temp, whether real or bogus to local db
 
 		go snapshots.RunSnapshotLoop(snapshotsStopChan, snapshotsDoneChan)
@@ -121,10 +89,11 @@ func main() {
 			if strings.ToLower(os.Getenv("KM_SHUTDOWN")) == "true" {
 				break
 			}
+
 			if strRate := strings.ToLower(os.Getenv("KM_READINGS_POLLRATE")); strRate != "" {
 				rate, err := strconv.Atoi(strRate)
 				if err != nil {
-					util.Lpl("Error converting readings pollrate from env var KM_READINGS_POLLRATE: " + err.Error())
+					util.Lpl("Error converting readings pollrate from env var (KM_READINGS_POLLRATE) " + err.Error())
 				} else {
 					wait = time.Duration(rate) * time.Second
 				}
@@ -132,7 +101,7 @@ func main() {
 
 			time.Sleep(wait)
 
-			kmclient.Synch_client(config.Opts.SynchClient, config.Opts.ServerSecret)
+			kmclient.SynchAsClient(config.Opts.SynchClient, config.Opts.ServerSecret)
 		}
 
 		close(snapshotsStopChan)
@@ -141,11 +110,8 @@ func main() {
 	} else { // Become server
 		// Testing out sending a text
 		// err := sms.NexmoSend("KittyMon web client starting " + fmt.Sprintf("%s", time.Now()))
-		// if err != nil {
-		// 	fmt.Println(err)
-		// }
 
 		go web.Webserver(config.Opts.Port)
-		kmserver.Synch_server()
+		kmserver.StartSynchServer()
 	}
 }

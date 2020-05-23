@@ -17,7 +17,7 @@ import (
 	"strconv"
 )
 
-func Synch_server() {
+func StartSynchServer() {
 	ln, err := net.Listen("tcp", ":"+config.Opts.SynchPort) // counterpart of net.Dial
 	if err != nil {
 		util.Fpl("Error setting up server listen on port", config.Opts.SynchPort)

@@ -13,7 +13,7 @@ import (
 	"strconv"
 )
 
-func Synch_client(host string, server_secret string) {
+func SynchAsClient(host string, server_secret string) {
 	conn, err := net.Dial("tcp", host+":"+config.Opts.SynchPort)
 	if err != nil {
 		util.Lpl("Error connecting to server ", err)

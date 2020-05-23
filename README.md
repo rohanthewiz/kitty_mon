@@ -40,7 +40,8 @@ $GOPATH/bin/ego -package main  # compile the template before doing 'go build'
 
 ### COMPILE with Docker
 - Build the compiler docker image: `docker build -f Dockerfile.compile -t go:compiler .`
-- Use a container to compile: `docker run --rm -v "$HOME/<path/to/kitty_mon/project>:root" -w /root -e GOOS=linux -e GOARCH=amd64 -e CGO_ENABLED=1 go:compiler go build -v -ldflags '-w -extldflags "-static"' -o app .`
+- Use a container to cross-compile to amd64 linux:
+ `docker run --rm -v "$HOME/<path/to/kitty_mon/project>:root" -w /root -e GOOS=linux -e GOARCH=amd64 -e CGO_ENABLED=1 go:compiler go build -v -ldflags '-w -extldflags "-static"' -o app .`
 
 ### Standard compile
 ```
@@ -51,8 +52,9 @@ CGO_ENABLED=1 go build # this will produce the executable 'kitty_mon' in the cur
 Copy the `app` executable where needed. Example: `scp app user@myserver.net:bin/kitty_mon`
 
 ## Using KittyMonitor
-Note that both the server and client operate from the same binary.
+Note that the single compiled binary can operate as server or client.
 KittyMonitor launches a goroutine that polls system board temperature of the Odroid.
+
 The main thread continues in an infinite loop to:
  1. poll temperature every 2 mins
  2. connect to the server every 4 mins and send any unsent readings (up to a limit).
