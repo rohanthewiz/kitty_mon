@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/rohanthewiz/serr"
 	"kitty_mon/auth"
 	"kitty_mon/config"
 	"kitty_mon/km_db"
@@ -10,6 +11,7 @@ import (
 	"kitty_mon/node"
 	"kitty_mon/reading"
 	"kitty_mon/snapshots"
+	"kitty_mon/unloaders"
 	"kitty_mon/util"
 	"kitty_mon/web"
 	"os"
@@ -72,8 +74,8 @@ func main() {
 	snapshotsStopChan := make(chan bool)
 	snapshotsDoneChan := make(chan bool)
 
-	if config.Opts.SynchClient != "" {
-		// TODO - graceful shutdown of pollTemp()
+	if config.Opts.SynchClient != "" { // Become Client
+
 		go reading.PollTemp() // save temp, whether real or bogus to local db
 
 		go snapshots.RunSnapshotLoop(snapshotsStopChan, snapshotsDoneChan)
@@ -84,7 +86,16 @@ func main() {
 		}
 
 		util.Lpl("I will periodically send data to server...")
+
+		networkErrCount := 0
+
 		for {
+			if networkErrCount > 3 {
+				_ = os.Setenv("KM_SHUTDOWN", "true") // let everyone know we are shutting down
+				_ = unloaders.Reboot()
+				break
+			}
+
 			// The app behavior can be dynamically changed via env vars
 			if strings.ToLower(os.Getenv("KM_SHUTDOWN")) == "true" {
 				break
@@ -101,7 +112,18 @@ func main() {
 
 			time.Sleep(wait)
 
-			kmclient.SynchAsClient(config.Opts.SynchClient, config.Opts.ServerSecret)
+			err := kmclient.SynchAsClient(config.Opts.SynchClient, config.Opts.ServerSecret)
+			if ser, ok := err.(serr.SErr); ok {
+				mp := ser.FieldsMap()
+				if str, ok := mp["msg"]; ok && strings.Contains(str, kmclient.NetworkConnErrorMsg) {
+					networkErrCount++
+				}
+			} else {
+				networkErrCount--
+				if networkErrCount < 0 {
+					networkErrCount = 0
+				}
+			}
 		}
 
 		close(snapshotsStopChan)

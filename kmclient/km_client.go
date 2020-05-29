@@ -2,6 +2,8 @@ package kmclient
 
 import (
 	"encoding/gob"
+	"errors"
+	"github.com/rohanthewiz/serr"
 	"kitty_mon/auth"
 	"kitty_mon/config"
 	"kitty_mon/km_db"
@@ -13,18 +15,22 @@ import (
 	"strconv"
 )
 
-func SynchAsClient(host string, server_secret string) {
+func SynchAsClient(host string, serverSecret string) (err error) {
+	const stage = "in synch as client"
+
 	conn, err := net.Dial("tcp", host+":"+config.Opts.SynchPort)
 	if err != nil {
-		util.Lpl("Error connecting to server ", err)
-		return
+		util.Lpl(NetworkConnErrorMsg+" "+stage, err)
+		return serr.Wrap(err, NetworkConnErrorMsg, "stage", stage)
 	}
+
 	defer func() {
 		conn.Close()
 		if r := recover(); r != nil {
 			util.Lpl("Recovered in synch_client", r)
 		}
 	}()
+
 	msg := message.Message{} // init to empty struct
 	enc := gob.NewEncoder(conn)
 	dec := gob.NewDecoder(conn)
@@ -32,15 +38,16 @@ func SynchAsClient(host string, server_secret string) {
 
 	// Send handshake - Client initiates
 	message.SendMsg(enc, message.Message{
-		Type: "WhoAreYou", Param: auth.WhoAmI(), Param2: server_secret,
+		Type: "WhoAreYou", Param: auth.WhoAmI(), Param2: serverSecret,
 	})
 	message.RcxMsg(dec, &msg) // Decode the response
+
 	if msg.Type == "WhoIAm" {
 		guid := msg.Param // retrieve the server's guid
 		util.Pl("The server's guid is", util.Short_sha(guid))
 		if len(guid) != 40 {
 			util.Fpl("The server's id is invalid. Run the server once with the -setup_db option")
-			return
+			return errors.New("The server's id is invalid")
 		}
 		// Is there an auth token for us?
 		if len(msg.Param2) == 40 {
@@ -51,7 +58,7 @@ func SynchAsClient(host string, server_secret string) {
 		node, err := node.GetNodeByGuid(guid)
 		if err != nil {
 			util.Fpl("Error retrieving node object")
-			return
+			return serr.Wrap(err)
 		}
 		msg.Param2 = "" // clear for next msg
 
@@ -68,7 +75,7 @@ func SynchAsClient(host string, server_secret string) {
 		message.RcxMsg(dec, &msg)
 		if msg.Param != "Authorized" {
 			util.Fpl("The server declined the authorization request")
-			return
+			return errors.New("The server declined the authorization request")
 		}
 
 		// The Client will send one or more messages to the server
@@ -97,10 +104,12 @@ func SynchAsClient(host string, server_secret string) {
 		util.Fpl("Node does not respond to request for database id")
 		util.Fpl("Make sure both server and client databases have been properly setup(migrated) with the -setup_db option")
 		util.Fpl("or make sure kitty_mon version is >= 0.9")
-		return
+		return errors.New("Handshake error")
 	}
 
 	util.Lpl("Synch Operation complete")
+
+	return nil
 }
 
 func RetrieveUnsentReadings() []reading.Reading {

@@ -106,6 +106,10 @@ func PollTemp() {
 		}
 		time.Sleep(wait)
 
+		if strings.ToLower(os.Getenv("KM_SHUTDOWN")) == "true" { // graceful shutdown
+			break
+		}
+
 		// Temperature
 		if config.Opts.Bogus {
 			reading = BogusReading()
