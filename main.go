@@ -10,7 +10,6 @@ import (
 	"kitty_mon/loaders"
 	"kitty_mon/node"
 	"kitty_mon/reading"
-	"kitty_mon/snapshots"
 	"kitty_mon/unloaders"
 	"kitty_mon/util"
 	"kitty_mon/web"
@@ -71,14 +70,15 @@ func main() {
 
 	// CORE PROCESSING
 
-	snapshotsStopChan := make(chan bool)
-	snapshotsDoneChan := make(chan bool)
+	// Disable snapshots for now
+	//snapshotsStopChan := make(chan bool)
+	//snapshotsDoneChan := make(chan bool)
 
 	if config.Opts.SynchClient != "" { // Become Client
 
 		go reading.PollTemp() // save temp, whether real or bogus to local db
 
-		go snapshots.RunSnapshotLoop(snapshotsStopChan, snapshotsDoneChan)
+		// go snapshots.RunSnapshotLoop(snapshotsStopChan, snapshotsDoneChan)
 
 		wait := config.ReadingsProdPollRate
 		if config.Opts.Env == "dev" {
@@ -125,9 +125,9 @@ func main() {
 				}
 			}
 		}
-
-		close(snapshotsStopChan)
-		<-snapshotsDoneChan // give snapshots a chance to wrap up
+		// Disable snapshots for now
+		//close(snapshotsStopChan)
+		//<-snapshotsDoneChan // give snapshots a chance to wrap up
 
 	} else { // Become server
 		// Testing out sending a text
