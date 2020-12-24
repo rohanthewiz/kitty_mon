@@ -14,8 +14,9 @@ import (
 	"time"
 )
 
-var CriticalTemp int = 69000
+var CriticalTemp int = 75000
 
+// TODO - move this out of init to a more predictable place
 func init() {
 	envCtemp, err := strconv.Atoi(os.Getenv("CRITICAL_TEMP"))
 	if err != nil || envCtemp == 0 {
@@ -23,6 +24,8 @@ func init() {
 	} else {
 		CriticalTemp = 1000 * envCtemp
 	}
+
+	// fmt.Println("CriticalTemp:", CriticalTemp)
 }
 
 // This represents the payload sent to the server

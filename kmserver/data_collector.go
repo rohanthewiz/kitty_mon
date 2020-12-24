@@ -2,14 +2,12 @@ package kmserver
 
 import (
 	"encoding/gob"
-	"fmt"
 	"kitty_mon/auth"
 	"kitty_mon/config"
 	"kitty_mon/km_db"
 	"kitty_mon/message"
 	node2 "kitty_mon/node"
 	"kitty_mon/reading"
-	"kitty_mon/sms"
 	"kitty_mon/util"
 	"net"
 	"os"
@@ -175,19 +173,19 @@ func ProcessReadings(readings *[]reading.Reading) {
 		rdg.Save()
 	}
 
-	// See if overtemp condition
-	if highReading.Temp > reading.CriticalTemp {
-		rdgsWNames := reading.ReadingsPopulateNodeName([]reading.Reading{highReading})
-		name := "unknown"
-		if len(rdgsWNames) > 0 {
-			name = rdgsWNames[0].Name
-		}
-		msg := fmt.Sprintf("High temperature %d received from %s measured at %s",
-			highReading.Temp, name, highReading.MeasurementTimestamp)
-		fmt.Println(msg)
-		err := sms.NexmoSend(msg)
-		if err != nil {
-			fmt.Println(err)
-		}
-	}
+	// Turn off for now // See if overtemp condition
+	// if highReading.Temp > reading.CriticalTemp {
+	// 	rdgsWNames := reading.ReadingsPopulateNodeName([]reading.Reading{highReading})
+	// 	name := "unknown"
+	// 	if len(rdgsWNames) > 0 {
+	// 		name = rdgsWNames[0].Name
+	// 	}
+	// 	msg := fmt.Sprintf("High temperature %d received from %s measured at %s",
+	// 		highReading.Temp, name, highReading.MeasurementTimestamp)
+	// 	fmt.Println(msg)
+	// 	err := sms.NexmoSend(msg)
+	// 	if err != nil {
+	// 		fmt.Println(err)
+	// 	}
+	// }
 }
