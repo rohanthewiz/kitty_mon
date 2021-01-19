@@ -1,27 +1,30 @@
 package main
 
 import (
-	"github.com/rohanthewiz/serr"
+	"fmt"
 	"kitty_mon/auth"
 	"kitty_mon/config"
 	"kitty_mon/km_db"
 	"kitty_mon/kmclient"
 	"kitty_mon/kmserver"
+	"kitty_mon/kredis"
 	"kitty_mon/loaders"
 	"kitty_mon/node"
 	"kitty_mon/reading"
 	"kitty_mon/unloaders"
 	"kitty_mon/util"
 	"kitty_mon/web"
+	"log"
 	"os"
 	"strconv"
 	"strings"
 	"time"
 
+	"github.com/rohanthewiz/roredis"
+	"github.com/rohanthewiz/serr"
+
 	_ "github.com/mattn/go-sqlite3"
 )
-
-var err error
 
 func main() {
 	loaders.ConfigLoader()
@@ -130,6 +133,46 @@ func main() {
 		//<-snapshotsDoneChan // give snapshots a chance to wrap up
 
 	} else { // Become server
+		// Server will store to Redis
+		host := "localhost"
+		if h := os.Getenv("REDIS_HOST"); h != "" {
+			host = h
+		}
+
+		port := "6379"
+		if p := os.Getenv("REDIS_PORT"); p != "" {
+			port = p
+		}
+
+		db := 0
+		if d := os.Getenv("REDIS_DB"); d != "" {
+			dtmp, err := strconv.Atoi(d)
+			if err == nil {
+				db = dtmp
+			} else {
+				log.Fatal("Could not convert redis db ", d)
+			}
+		}
+
+		fmt.Println("Host", host, "Port", port, "DB", db)
+		kc := kredis.InitClient(host, port, db)
+
+		if resp := roredis.Ping(kc); resp != "PONG" {
+			fmt.Printf("resp %#v\n", resp)
+			log.Fatal("Unable to ping redis server")
+		}
+
+		// err = roredis.Set(kc, "key1", "val1", 15 * time.Second)
+		// if err != nil {
+		// 	log.Fatal("Redis set failed", err.Error())
+		// }
+		//
+		// val, er := roredis.Get(kc, "key1")
+		// if er != nil {
+		// 	log.Fatal("Unable to get test val - ", er)
+		// }
+		// fmt.Println("Test value rcxd:", val)
+
 		// Testing out sending a text
 		// err := sms.NexmoSend("KittyMon web client starting " + fmt.Sprintf("%s", time.Now()))
 

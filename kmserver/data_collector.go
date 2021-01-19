@@ -155,11 +155,11 @@ func ProcessReadings(readings *[]reading.Reading) {
 	for _, rdg := range *readings {
 
 		// Skip if we already have this Reading locally
-		local_reading := reading.Reading{} // make sure local_change is inited here
+		localReading := reading.Reading{} // make sure local_change is inited here
 		// otherwise GORM uses its id in the query - weird!
-		km_db.Db.Where("guid = ?", rdg.Guid).First(&local_reading)
-		if local_reading.Id > 1 {
-			util.Pf("We already have Reading: %s -- skipping\n", util.Short_sha(local_reading.Guid))
+		km_db.Db.Where("guid = ?", rdg.Guid).First(&localReading)
+		if localReading.Id > 1 {
+			util.Pf("We already have Reading: %s -- skipping\n", util.Short_sha(localReading.Guid))
 			continue
 		}
 
@@ -173,7 +173,7 @@ func ProcessReadings(readings *[]reading.Reading) {
 		rdg.Save()
 	}
 
-	// Turn off for now // See if overtemp condition
+	// Turn off for now due to use of Odroid UX4 // See if overtemp condition
 	// if highReading.Temp > reading.CriticalTemp {
 	// 	rdgsWNames := reading.ReadingsPopulateNodeName([]reading.Reading{highReading})
 	// 	name := "unknown"

@@ -45,7 +45,7 @@ func Query(w http.ResponseWriter, _ *http.Request, p httprouter.Params) {
 	if err == nil {
 		config.Opts.L = limit
 	}
-	readings, err := reading.GetRecentReadings()
+	readings, err := reading.GetRecentReadingsRedis()
 	RenderQuery(w, readings) //call Ego generated method
 }
 

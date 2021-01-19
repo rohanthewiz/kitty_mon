@@ -1,18 +1,25 @@
 package reading
 
 import (
+	"encoding/json"
 	"kitty_mon/auth"
 	"kitty_mon/config"
 	"kitty_mon/km_db"
+	"kitty_mon/kredis"
 	node2 "kitty_mon/node"
 	"kitty_mon/util"
+	"log"
 	"math/rand"
 	"os"
 	"os/exec"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/rohanthewiz/roredis"
 )
+
+const redisPrefix = "reading:"
 
 var CriticalTemp int = 75000
 
@@ -20,26 +27,24 @@ var CriticalTemp int = 75000
 func init() {
 	envCtemp, err := strconv.Atoi(os.Getenv("CRITICAL_TEMP"))
 	if err != nil || envCtemp == 0 {
-		//panic("CRITICAL_TEMP env var is not a valid positive integer - e.g. 70")
+		// panic("CRITICAL_TEMP env var is not a valid positive integer - e.g. 70")
 	} else {
 		CriticalTemp = 1000 * envCtemp
 	}
-
-	// fmt.Println("CriticalTemp:", CriticalTemp)
 }
 
 // This represents the payload sent to the server
 // This is the equivalent of a NoteChange in GoNotes
 type Reading struct {
 	Id                   int64
-	Guid                 string    `sql: "size:40"` // random id for each message
-	SourceGuid           string    `sql: "size:40"` // We will tag this with the client's db sig when reading sent
-	IPs                  string    `sql: "size:254"`
-	Sent                 int       `json:"-"` // has the reading been sent // bool 0 - false, 1 - true
-	Temp                 int       // temperature
-	MeasurementTimestamp time.Time // True CreatedAt for the reading,
+	Guid                 string    `sql:"size:40" json:"guid"`       // random id for each message
+	SourceGuid           string    `sql:"size:40" json:"sourceGUID"` // We will tag this with the client's db sig when reading sent
+	IPs                  string    `sql:"size:254" json:"IPs"`
+	Sent                 int       `json:"-"`                    // has the reading been sent // bool 0 - false, 1 - true
+	Temp                 int       `json:"temp"`                 // temperature
+	MeasurementTimestamp time.Time `json:"measurementTimestamp"` // True CreatedAt for the reading,
 	// since GORM also updates CreatedAt when saved on the server
-	CreatedAt time.Time // GORM automatically updates this field on save
+	CreatedAt time.Time `json:"createdAt"` // GORM automatically updates this field on save
 }
 
 type ReadingEnriched struct {
@@ -67,6 +72,25 @@ func (r Reading) Save() bool {
 	if !km_db.Db.NewRecord(r) { // was it saved?
 		util.Pl("Reading saved:", util.Short_sha(r.Guid))
 		return true
+	}
+	util.Fpl("Failed to save reading:", util.Short_sha(r.Guid))
+	return false
+}
+
+func (r Reading) SaveRedis() bool {
+	const ttl = 48 * time.Hour // adj as necessary
+
+	key := redisPrefix + r.SourceGuid + ":" + r.Guid
+
+	b, err := json.Marshal(r)
+	if err != nil {
+		log.Println("Unable to marshal reading", r.Guid)
+	}
+
+	err = roredis.Set(kredis.GetClient(), key, string(b), ttl)
+	if err != nil {
+		log.Println("Error saving reading to Redis: ", err.Error())
+		return false
 	}
 	util.Fpl("Failed to save reading:", util.Short_sha(r.Guid))
 	return false
