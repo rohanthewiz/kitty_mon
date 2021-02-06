@@ -39,6 +39,7 @@ func takeSnapShot() {
 
 	// TODO - Exec snapshot command
 
+	// Copy generated snapshot to the server
 	clientCfg, _ := auth.PrivateKey(sshUser, privKey, ssh.InsecureIgnoreHostKey())
 	client := scp.NewClient(scpServerAndPort, &clientCfg)
 	err := client.Connect()

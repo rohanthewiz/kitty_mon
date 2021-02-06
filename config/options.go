@@ -25,7 +25,7 @@ type Option struct {
 	Exp             string
 	Imp             string
 	SynchClient     string
-	GetNodeToken    string
+	GetTokenForNode string
 	SaveNodeToken   string
 	ServerSecret    string
 	Env             string
@@ -58,7 +58,7 @@ func NewOpts() *Option {
 	expPtr := flag.String("exp", "", "Export the notes queried to the format of the file given")
 	impPtr := flag.String("imp", "", "Import the notes queried from the file given")
 	synchClientPtr := flag.String("synch_client", "", "Synch client mode")
-	getNodeTokenPtr := flag.String("get_node_token", "", "Get a token for interacting with this as server")
+	getTokenForNodePtr := flag.String("get_node_token", "", "Get a token for interacting with this as server")
 	saveNodeTokenPtr := flag.String("save_node_token", "", "Save a token for interacting with this as server")
 	serverSecretPtr := flag.String("server_secret", "", "Include Server Secret")
 	envPtr := flag.String("env", "dev", "App Environment (dev|prod)")
@@ -88,7 +88,7 @@ func NewOpts() *Option {
 	opts.Exp = *expPtr
 	opts.Imp = *impPtr
 	opts.SynchClient = *synchClientPtr
-	opts.GetNodeToken = *getNodeTokenPtr
+	opts.GetTokenForNode = *getTokenForNodePtr
 	opts.SaveNodeToken = *saveNodeTokenPtr
 	opts.ServerSecret = *serverSecretPtr
 	opts.Env = *envPtr

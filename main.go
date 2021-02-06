@@ -32,16 +32,19 @@ func main() {
 
 	// ----- UTILITY OPTIONS -----
 
-	// Client - Return our db signature
+	// Return our db signature
 	if config.Opts.WhoAmI {
 		util.Fpl(auth.WhoAmI())
 		return
 	}
 
+	// TODO let's modify this approach as it involves stopping the server
+	// TODO Rather, let's use some kind of admin login approach
+	// TODO - First let's put this in a function
 	// Server - Generate an auth token for a client
 	// The format of the generated token is: server_id-auth_token_for_the_client
-	if config.Opts.GetNodeToken != "" {
-		pt, err := node.GetNodeToken(config.Opts.GetNodeToken)
+	if config.Opts.GetTokenForNode != "" {
+		pt, err := node.GetNodeToken(config.Opts.GetTokenForNode)
 		if err != nil {
 			util.Fpl("Error retrieving token")
 			return
@@ -73,9 +76,9 @@ func main() {
 
 	// CORE PROCESSING
 
-	// Disable snapshots for now
-	//snapshotsStopChan := make(chan bool)
-	//snapshotsDoneChan := make(chan bool)
+	// Disable image snapshots for now
+	// snapshotsStopChan := make(chan bool)
+	// snapshotsDoneChan := make(chan bool)
 
 	if config.Opts.SynchClient != "" { // Become Client
 
@@ -128,9 +131,10 @@ func main() {
 				}
 			}
 		}
-		// Disable snapshots for now
-		//close(snapshotsStopChan)
-		//<-snapshotsDoneChan // give snapshots a chance to wrap up
+
+		// Disable image snapshots for now
+		// close(snapshotsStopChan)
+		// <-snapshotsDoneChan // give snapshots a chance to wrap up
 
 	} else { // Become server
 		// Server will store to Redis
@@ -162,6 +166,7 @@ func main() {
 			log.Fatal("Unable to ping redis server")
 		}
 
+		// Testing roredis
 		// err = roredis.Set(kc, "key1", "val1", 15 * time.Second)
 		// if err != nil {
 		// 	log.Fatal("Redis set failed", err.Error())
