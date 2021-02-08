@@ -70,6 +70,7 @@ func main() {
 
 	if config.Opts.SetupDb { // Migrate the DB
 		km_db.Migrate(&reading.Reading{}, &node.Node{})
+
 		auth.EnsureDBSig() // Initialize local with a SHA1 signature if it doesn't already have one
 		return
 	}
@@ -80,7 +81,7 @@ func main() {
 	// snapshotsStopChan := make(chan bool)
 	// snapshotsDoneChan := make(chan bool)
 
-	if config.Opts.SynchClient != "" { // Become Client
+	if config.Opts.SynchClient != "" { // We are a client trying to connect to the given server
 
 		go reading.PollTemp() // save temp, whether real or bogus to local db
 
@@ -139,17 +140,17 @@ func main() {
 	} else { // Become server
 		// Server will store to Redis
 		host := "localhost"
-		if h := os.Getenv("REDIS_HOST"); h != "" {
+		if h := os.Getenv("KM_REDIS_HOST"); h != "" {
 			host = h
 		}
 
 		port := "6379"
-		if p := os.Getenv("REDIS_PORT"); p != "" {
+		if p := os.Getenv("KM_REDIS_PORT"); p != "" {
 			port = p
 		}
 
 		db := 0
-		if d := os.Getenv("REDIS_DB"); d != "" {
+		if d := os.Getenv("KM_REDIS_DB"); d != "" {
 			dtmp, err := strconv.Atoi(d)
 			if err == nil {
 				db = dtmp

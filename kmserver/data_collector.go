@@ -41,7 +41,7 @@ func HandleConnection(conn net.Conn) {
 	var node_id string
 	var node node2.Node
 	var err error
-	var authorized bool = false // true to disable auth
+	var authorized bool // true to disable auth
 
 	for {
 		msg = message.Message{}
@@ -75,7 +75,7 @@ func HandleConnection(conn net.Conn) {
 		case "WhoAreYou":
 			node_id = msg.Param // receive the client's GUID (db signature)
 			util.Pd("Client id is:", util.Short_sha(node_id))
-			if msg.Param2 == auth.GetServerSecret() { // if client knows the server's token, give them a token of their own on this server
+			if msg.Param2 == auth.GetServerSecret() { // TODO - Do this differently // if client knows the server's token, give them a token of their own on this server
 				pt, err := node2.GetNodeToken(node_id)
 				if err != nil {
 					msg.Param2 = ""

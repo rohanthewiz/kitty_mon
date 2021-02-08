@@ -1,10 +1,7 @@
 package auth
 
 import (
-	"errors"
-	"kitty_mon/km_db"
 	"kitty_mon/node"
-	"kitty_mon/util"
 )
 
 const AuthFailMsg = "Authentication failure. Generate authorization token with -synch_auth\nThen store in node entry on client with -store_synch_auth"
@@ -38,22 +35,14 @@ func GetServerSecret() string {
 	return node.Token
 }
 
+// LocalNode should be populated at startup
+// so we try to get it from the global variable
 func GetLocalNode() (node.Node, error) {
 	if LocalNode.Id > 0 { // it has been inited
 		return LocalNode, nil
 	}
-	var node node.Node
-	km_db.Db.Where("is_local = 1").First(&node)
-	if node.Id < 1 { // no such node
-		EnsureDBSig()
-		km_db.Db.Where("is_local = 1").First(&node)
-		if node.Id < 1 {
-			str := (`Could not locate or create local database signature.
-			Delete the local database, and try again`)
-			util.Fpl(str)
-			return node, errors.New(str)
-		}
-	}
-	LocalNode = node // cache
-	return node, nil
+
+	EnsureDBSig() // this will populate LocalNode
+
+	return LocalNode, nil // TODO - better error handling here
 }

@@ -24,7 +24,7 @@ type Option struct {
 	DbPath          string
 	Exp             string
 	Imp             string
-	SynchClient     string
+	SynchClient     string // client asking to synch
 	GetTokenForNode string
 	SaveNodeToken   string
 	ServerSecret    string
