@@ -40,7 +40,7 @@ $GOPATH/bin/ego -package main  # compile the template before doing 'go build'
 
 ### COMPILE with Docker
 - Build the compiler docker image: `docker build -f Dockerfile.compile -t go:compiler .`
-- Use a container to cross-compile to amd64 linux:
+- Use a container to cross-compile, for example, to amd64 linux:
  `docker run --rm -v "$HOME/<path/to/kitty_mon/project>:root" -w /root -e GOOS=linux -e GOARCH=amd64 -e CGO_ENABLED=1 go:compiler go build -v -ldflags '-w -extldflags "-static"' -o app .`
 
 ### Standard compile
@@ -64,6 +64,7 @@ Usage info: `kitty_mon -h`
 ### Get the server's secret token (you'll need to copy the token unto the client)
 
 ```
+# At the server run
 ./kitty_mon -get_server_secret # => 9A7blahblah123...
 ```
 
@@ -125,7 +126,6 @@ That's okay, the Odroid C1/C2 do!
 ### TODO
 - A lot since we are in Beta
 - Summarization, graphs, dashboard
-- SMS Alerts
 - Token based auth webserver mode
 - Allow instructions for the client (example: reboot, delete n readings)
 
